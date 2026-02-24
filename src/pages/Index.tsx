@@ -1,33 +1,41 @@
+import { useState } from "react";
 import KSHeader from "@/components/kappascore/KSHeader";
-import "@/components/kappascore/KSHeader.css";
+import KSFooter from "@/components/kappascore/KSFooter";
+import "@/components/kappascore/KSFooter.css";
 
 const Index = () => {
-  return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#f0f0f0" }}>
-      <KSHeader />
+  const [activeNav, setActiveNav] = useState(0);
 
-      {/* Placeholder content */}
-      <main
-        style={{
-          maxWidth: 1280,
-          margin: "0 auto",
-          padding: "40px 20px",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: 28,
-            fontWeight: 800,
-            fontFamily: "'Plus Jakarta Sans', sans-serif",
-            marginBottom: 8,
-          }}
-        >
-          Kappa<span style={{ color: "#22c55e" }}>score</span>
-        </h1>
-        <p style={{ color: "#888", fontSize: 14 }}>
-          Live scores, statistics, and results — coming soon.
-        </p>
+  const handleNavigateToLive = () => {
+    setActiveNav(2); // Live Score index
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      <KSHeader activeNav={activeNav} onNavChange={setActiveNav} />
+      
+      <main className="max-w-[1200px] mx-auto px-4 py-8">
+        {activeNav === 0 && (
+          <div className="text-center py-20 text-gray-400">
+            <h2 className="text-2xl font-bold mb-2">Results</h2>
+            <p>Latest sports results will appear here.</p>
+          </div>
+        )}
+        {activeNav === 1 && (
+          <div className="text-center py-20 text-gray-400">
+            <h2 className="text-2xl font-bold mb-2">Statistics</h2>
+            <p>Sports statistics will appear here.</p>
+          </div>
+        )}
+        {activeNav === 2 && (
+          <div className="text-center py-20 text-gray-400">
+            <h2 className="text-2xl font-bold mb-2">Live Score</h2>
+            <p>Live scores will appear here.</p>
+          </div>
+        )}
       </main>
+
+      <KSFooter onNavigateToLive={handleNavigateToLive} />
     </div>
   );
 };
