@@ -20,8 +20,12 @@ const topLinks = [
   { label: "Top Lists", href: "https://kappatop.com", active: false },
 ];
 
-export default function KSHeader() {
-  const [activeNav, setActiveNav] = useState(0);
+interface KSHeaderProps {
+  activeNav: number;
+  onNavChange: (index: number) => void;
+}
+
+export default function KSHeader({ activeNav, onNavChange }: KSHeaderProps) {
   const [langOpen, setLangOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(languages[0]);
   const langRef = useRef<HTMLDivElement>(null);
@@ -38,14 +42,11 @@ export default function KSHeader() {
 
   return (
     <header className="ks-header">
-      {/* Main row */}
       <div className="ks-header__row">
-        {/* Logo */}
         <a href="/" className="ks-header__logo">
           Kappa<span>score</span>
         </a>
 
-        {/* Top links - hidden on tablet/mobile */}
         <ul className="ks-header__toplinks">
           {topLinks.map((l) => (
             <li key={l.label}>
@@ -61,13 +62,12 @@ export default function KSHeader() {
           ))}
         </ul>
 
-        {/* Desktop nav pills */}
         <nav className="ks-header__nav ks-header__nav--desktop">
           {navLinks.map((link, i) => (
             <button
               key={link.label}
               className={activeNav === i ? "active" : ""}
-              onClick={() => setActiveNav(i)}
+              onClick={() => onNavChange(i)}
             >
               <span className="ks-header__nav-icon">{link.icon}</span>
               {link.label}
@@ -75,7 +75,6 @@ export default function KSHeader() {
           ))}
         </nav>
 
-        {/* Language selector */}
         <div className="ks-header__lang" ref={langRef}>
           <button
             className="ks-header__lang-btn"
@@ -103,13 +102,12 @@ export default function KSHeader() {
         </div>
       </div>
 
-      {/* Mobile nav - always visible on small screens, below header row */}
       <nav className="ks-header__nav ks-header__nav--mobile">
         {navLinks.map((link, i) => (
           <button
             key={link.label}
             className={activeNav === i ? "active" : ""}
-            onClick={() => setActiveNav(i)}
+            onClick={() => onNavChange(i)}
           >
             <span className="ks-header__nav-icon">{link.icon}</span>
             {link.label}
