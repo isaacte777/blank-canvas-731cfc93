@@ -37,14 +37,15 @@
 
     .subheader-sports-content {
         display: flex;
-        gap: 8px;
+        gap: 6px;
         overflow-x: auto;
-        padding: 12px 0;
+        padding: 10px 0;
         scrollbar-width: none;
         -ms-overflow-style: none;
         -webkit-overflow-scrolling: touch;
         width: 100%;
         justify-content: center;
+        flex-wrap: nowrap;
     }
 
     .subheader-sports-content::-webkit-scrollbar {
@@ -221,13 +222,22 @@
 <div class="subheader-sports">
     <div class="main-container">
         <div class="subheader-sports-content">
+            {# Soccer always first #}
+            <div class="subheader-sport-item {% if sport_selected is defined and sports|length > 0 and sports[0] is defined and sport_selected == sports[0]._id %}selected{% endif %} {% for sport in sports %}{% if sport.oxb_id == 1 and sport_selected == sport._id %}selected{% endif %}{% endfor %}" data-sid="1">
+                <a href="{{ parent_page }}/soccer">
+                    <svg class="icon"><use xlink:href="/images/sport_icons.svg#sports_1"></use></svg>
+                    {{ Translate('Soccer') }}
+                </a>
+            </div>
             {% for sport in sports %}
+                {% if sport.oxb_id != 1 %}
                 <div class="subheader-sport-item {% if sport_selected == sport._id %}selected{% endif %}" data-sid="{{ sport.oxb_id }}">
                     <a href="{{ parent_page }}/{{ sport.sport_key }}">
                         <svg class="icon"><use xlink:href="/images/sport_icons.svg#sports_{{ sport.oxb_id }}"></use></svg>
                         {{ Translate(sport.name) }}
                     </a>
                 </div>
+                {% endif %}
             {% endfor %}
         </div>
         <div class="right-hover"></div>
