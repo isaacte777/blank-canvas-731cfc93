@@ -1125,7 +1125,7 @@ nav.nav-extended .nav-content,
 nav .nav-content {
   background: linear-gradient(135deg, var(--dash-bg-secondary) 0%, var(--dash-bg-card) 100%) !important;
   border-bottom: 1px solid var(--dash-border) !important;
-  padding: 0 24px !important;
+  padding: 0 !important;
   min-height: 72px !important;
   height: 72px !important;
   display: flex !important;
