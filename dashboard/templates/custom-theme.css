@@ -1119,6 +1119,13 @@ header + div {
   position: relative;
 }
 
+/* Fix breadcrumb alignment - override bundle defaults */
+.custom-breadcrumbs {
+  margin-left: 0 !important;
+  margin-top: 0 !important;
+  width: 100% !important;
+}
+
 /* Style the breadcrumb/title bar area */
 nav.custom-breadcrumbs,
 nav.nav-extended .nav-content,
