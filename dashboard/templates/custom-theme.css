@@ -2295,60 +2295,53 @@ span[style*="background"] {
   border-color: var(--dash-border) !important;
 }
 
-/* --- Filters section: compact, no background --- */
-.card-panel .input-field {
-  margin: 0 !important;
-}
+/* --- Filters section: compact single-line --- */
 
-.card-panel .select-wrapper {
-  position: relative;
-  z-index: 200;
-}
-
-/* Remove background from card-panel that contains select filters */
+/* Target the card/card-panel wrapping the filters */
+.card:has(.select-wrapper),
 .card-panel:has(.select-wrapper),
-.card-panel:has(h5) {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 12px 0 !important;
-  margin: 0 !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 12px;
-  position: relative;
-  z-index: 100;
-  overflow: visible !important;
-}
-
-.card-panel:has(.select-wrapper):hover,
-.card-panel:has(h5):hover {
-  transform: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-}
-
-/* Fallback for browsers without :has() — target by structure */
+.card:has(h5),
+.card-panel:has(h5),
+.row > .col > .card,
 .row > .col > .card-panel {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 12px 0 !important;
+  padding: 0 !important;
   margin: 0 !important;
   overflow: visible !important;
 }
+
+.card:has(.select-wrapper):hover,
+.card-panel:has(.select-wrapper):hover,
+.card:has(h5):hover,
+.card-panel:has(h5):hover,
+.row > .col > .card:hover,
 .row > .col > .card-panel:hover {
   transform: none !important;
   box-shadow: none !important;
+  background: transparent !important;
 }
 
-.row > .col > .card-panel h5 {
+/* Remove card-content padding inside filter cards */
+.card:has(.select-wrapper) .card-content,
+.card-panel:has(.select-wrapper) .card-content,
+.row > .col > .card .card-content {
+  padding: 0 !important;
+}
+
+/* Filter h5 title - compact */
+.row > .col > .card h5,
+.row > .col > .card-panel h5,
+.card-panel:has(.select-wrapper) h5,
+.card:has(.select-wrapper) h5 {
   margin: 0 !important;
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
 }
 
+/* Inner rows inside filter section */
+.row > .col > .card .row,
 .row > .col > .card-panel .row {
   margin: 0 !important;
   display: flex !important;
@@ -2356,14 +2349,30 @@ span[style*="background"] {
   gap: 12px;
 }
 
+/* Input fields inside filters */
+.card-panel .input-field,
+.row > .col > .card .input-field,
 .row > .col > .card-panel .input-field {
   margin: 0 !important;
   flex: 0 0 auto;
   min-width: 160px;
 }
 
+.card-panel .select-wrapper,
+.row > .col > .card .select-wrapper {
+  position: relative;
+  z-index: 200;
+}
+
 /* Dropdown must appear above everything */
 .select-wrapper .dropdown-content {
   z-index: 9999 !important;
   position: absolute !important;
+}
+
+/* The outer col wrapping the filters - remove extra spacing */
+.col.s12.m12:has(.card .select-wrapper),
+.col.s12.m12:has(.card-panel .select-wrapper) {
+  padding: 0 !important;
+  margin-bottom: 8px !important;
 }
