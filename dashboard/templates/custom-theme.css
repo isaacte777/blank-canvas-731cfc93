@@ -1134,7 +1134,10 @@ nav.custom-breadcrumbs .nav-wrapper {
   display: flex !important;
   align-items: center !important;
   height: 72px !important;
-  width: 100%;
+  width: 95% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
 }
 
 nav.custom-breadcrumbs .nav-wrapper .col {
