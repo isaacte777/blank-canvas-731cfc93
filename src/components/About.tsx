@@ -65,11 +65,15 @@ export const About = ({
   // No default gallery images - only show what's in the database
   const images = galleryImages.length > 0 ? galleryImages : [];
 
-  // Gallery layout: single featured image (0–1), uniform grid (2–5, 7+), Mondrian (exactly 6)
-  const galleryMode = images.length <= 1 ? 'single' : images.length === 6 ? 'mondrian' : 'uniform';
-  const uniformCols = images.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3';
+  // Gallery layout: single featured image (0–1), Mondrian-style varied blocks (2+)
+  const galleryMode = images.length <= 1 ? 'single' : 'mondrian';
   const galleryHeight = 'h-[280px] sm:h-[400px] md:h-[500px] lg:h-[600px]';
-  const galleryBorders = ['border-primary/20', 'border-secondary/20', 'border-pink/20', 'border-purple/20', 'border-turquoise/20'];
+  // Flex weights create blocks of different sizes, like a Mondrian painting
+  const LEFT_WEIGHTS = ['flex-[3]', 'flex-[1]', 'flex-[2]'];
+  const RIGHT_WEIGHTS = ['flex-[2]', 'flex-[1]', 'flex-[3]'];
+  const midIndex = Math.ceil(images.length / 2);
+  const leftImages = images.slice(0, midIndex);
+  const rightImages = images.slice(midIndex);
   
   const values = [
     {
@@ -238,76 +242,36 @@ export const About = ({
               </div>
             )}
 
-            {/* Uniform grid (2–5 or 7+ gallery images) */}
-            {galleryMode === 'uniform' && (
-              <div className={`grid gap-2 sm:gap-3 ${uniformCols}`}>
-                {images.map((image, index) => (
-                  <GalleryItem 
-                    key={image.id}
-                    image={image} 
-                    className={`aspect-square rounded-xl border-2 ${galleryBorders[index % galleryBorders.length]}`} 
-                    delay={`${0.4 + index * 0.08}s`}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Mondrian grid layout (exactly 6 gallery images - fills every cell) */}
+            {/* Mondrian-style layout: blocks of different sizes, like the painting */}
             {galleryMode === 'mondrian' && (
-              <div className="grid grid-cols-4 grid-rows-3 gap-1.5 sm:gap-2 md:gap-3 h-[280px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
-                {/* Large image - spans 2 cols, 2 rows (top left) */}
-                {images[0] && (
-                  <GalleryItem 
-                    image={images[0]} 
-                    className="col-span-2 row-span-2 rounded-2xl border-2 border-primary/20" 
-                    delay="0.4s"
-                  />
-                )}
-                
-                {/* Medium image - spans 2 cols, 1 row (top right) */}
-                {images[1] && (
-                  <GalleryItem 
-                    image={images[1]} 
-                    className="col-span-2 row-span-1 rounded-xl border-2 border-secondary/20" 
-                    delay="0.5s"
-                  />
-                )}
-                
-                {/* Small square - 1 col, 1 row */}
-                {images[2] && (
-                  <GalleryItem 
-                    image={images[2]} 
-                    className="col-span-1 row-span-1 rounded-lg border-2 border-pink/20" 
-                    delay="0.6s"
-                  />
-                )}
-                
-                {/* Tall image - 1 col, 2 rows (right side) */}
-                {images[3] && (
-                  <GalleryItem 
-                    image={images[3]} 
-                    className="col-span-1 row-span-2 rounded-xl border-2 border-purple/20" 
-                    delay="0.7s"
-                  />
-                )}
-                
-                {/* Wide image - 2 cols, 1 row (bottom left) */}
-                {images[4] && (
-                  <GalleryItem 
-                    image={images[4]} 
-                    className="col-span-2 row-span-1 rounded-xl border-2 border-turquoise/20" 
-                    delay="0.8s"
-                  />
-                )}
-                
-                {/* Medium square - 1 col, 1 row (bottom middle) */}
-                {images[5] && (
-                  <GalleryItem 
-                    image={images[5]} 
-                    className="col-span-1 row-span-1 rounded-lg border-2 border-primary/20" 
-                    delay="0.9s"
-                  />
-                )}
+              <div className={`flex gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 bg-black/60 rounded-2xl ${galleryHeight}`}>
+                {/* Left pane - larger blocks */}
+                <div className="flex-[3] flex flex-col gap-1.5 sm:gap-2 md:gap-3 min-h-0">
+                  {leftImages.map((image, index) => (
+                    <GalleryItem 
+                      key={image.id}
+                      image={image} 
+                      className={`${LEFT_WEIGHTS[index % LEFT_WEIGHTS.length]} min-h-0 rounded-lg`} 
+                      delay={`${0.4 + index * 0.08}s`}
+                    />
+                  ))}
+                </div>
+
+                {/* Right pane - smaller blocks + solid color accent */}
+                <div className="flex-[2] flex flex-col gap-1.5 sm:gap-2 md:gap-3 min-h-0">
+                  {rightImages.map((image, index) => (
+                    <GalleryItem 
+                      key={image.id}
+                      image={image} 
+                      className={`${RIGHT_WEIGHTS[index % RIGHT_WEIGHTS.length]} min-h-0 rounded-lg`} 
+                      delay={`${0.4 + (leftImages.length + index) * 0.08}s`}
+                    />
+                  ))}
+                  {/* Solid color block - Mondrian accent (bottom right) */}
+                  {images.length <= 6 && (
+                    <div className="flex-[1] min-h-0 rounded-lg bg-purple/70 border border-black/20" />
+                  )}
+                </div>
               </div>
             )}
             
