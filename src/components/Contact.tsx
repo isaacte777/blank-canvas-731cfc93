@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { sanitizeInput, sanitizeEmail, sanitizePhone } from "@/lib/security";
+import { DEFAULT_CONTACT } from "@/lib/contentDefaults";
 
 // Validation schema
 const contactSchema = z.object({
@@ -154,13 +155,13 @@ export const Contact = ({
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-14">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground mb-2 sm:mb-3 tracking-wide">
             <EditableText field="title">
-              <span className="text-turquoise">{title || ''}</span>
+              <span className="text-turquoise">{title || DEFAULT_CONTACT.title}</span>
             </EditableText>
           </h2>
           <div className="w-16 h-1 bg-turquoise mx-auto rounded-full mb-3 sm:mb-4" />
           <EditableText field="subtitle">
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-turquoise-light font-body font-semibold">
-              {subtitle || ''}
+              {subtitle || DEFAULT_CONTACT.subtitle}
             </p>
           </EditableText>
         </div>
@@ -256,7 +257,8 @@ export const Contact = ({
           </Card>
 
           <div className="space-y-3 sm:space-y-4 md:space-y-6">
-            {/* Address Card */}
+            {/* Address Card (oculta si no hay datos cargados) */}
+            {(addressLabel || addressLine1 || addressLine2) && (
             <Card className="bg-card border-border hover:border-mint/50 transition-all duration-300 group">
               <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6 flex items-start gap-2.5 sm:gap-3 md:gap-4">
                 <div className="p-1.5 sm:p-2 md:p-3 rounded-lg bg-mint/10 group-hover:bg-mint/20 transition-colors flex-shrink-0">
@@ -280,8 +282,10 @@ export const Contact = ({
                 </div>
               </CardContent>
             </Card>
+            )}
 
-            {/* Phone Card */}
+            {/* Phone Card (oculta si no hay datos cargados) */}
+            {(phoneLabel || phoneLine1 || phoneLine2) && (
             <Card className="bg-card border-border hover:border-mint/50 transition-all duration-300 group">
               <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6 flex items-start gap-2.5 sm:gap-3 md:gap-4">
                 <div className="p-1.5 sm:p-2 md:p-3 rounded-lg bg-mint/10 group-hover:bg-mint/20 transition-colors flex-shrink-0">
@@ -305,8 +309,10 @@ export const Contact = ({
                 </div>
               </CardContent>
             </Card>
+            )}
 
-            {/* Email Card */}
+            {/* Email Card (oculta si no hay datos cargados) */}
+            {(emailLabel || emailLine1 || emailLine2) && (
             <Card className="bg-card border-border hover:border-mint/50 transition-all duration-300 group">
               <CardContent className="p-3 sm:p-4 md:p-5 lg:p-6 flex items-start gap-2.5 sm:gap-3 md:gap-4">
                 <div className="p-1.5 sm:p-2 md:p-3 rounded-lg bg-mint/10 group-hover:bg-mint/20 transition-colors flex-shrink-0">
@@ -318,18 +324,21 @@ export const Contact = ({
                       {emailLabel || ''}
                     </h3>
                   </EditableText>
-                  <p className="text-muted-foreground text-[10px] sm:text-xs md:text-sm break-words">
-                    <EditableText field="emailLine1">
-                      <span>{emailLine1 || ''}</span>
-                    </EditableText>
-                    <br />
-                    <EditableText field="emailLine2">
-                      <span>{emailLine2 || ''}</span>
-                    </EditableText>
-                  </p>
+                  {(emailLine1 || emailLine2) && (
+                    <p className="text-muted-foreground text-[10px] sm:text-xs md:text-sm break-words">
+                      <EditableText field="emailLine1">
+                        <span>{emailLine1 || ''}</span>
+                      </EditableText>
+                      {emailLine1 && emailLine2 && <br />}
+                      <EditableText field="emailLine2">
+                        <span>{emailLine2 || ''}</span>
+                      </EditableText>
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
+            )}
 
             {/* Map - only show if mapUrl exists */}
             {mapUrl && (

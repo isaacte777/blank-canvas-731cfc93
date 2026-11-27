@@ -12,6 +12,7 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { ManageAdminsDialog } from '@/components/ManageAdminsDialog';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { useAdminPresence } from '@/hooks/useAdminPresence';
+import { DEFAULT_ABOUT, DEFAULT_ABOUT_FIELDS, DEFAULT_CONTACT, DEFAULT_CONTACT_FIELDS } from '@/lib/contentDefaults';
 import { 
   Loader2, 
   LogOut, 
@@ -327,36 +328,14 @@ const Admin = () => {
   const [editingAboutField, setEditingAboutField] = useState<string | null>(null);
   const [aboutFieldValue, setAboutFieldValue] = useState('');
   const [aboutExtraFields, setAboutExtraFields] = useState({
-    firstParagraph: '',
-    secondParagraph: '',
-    value1Title: '',
-    value1Desc: '',
-    value2Title: '',
-    value2Desc: '',
-    value3Title: '',
-    value3Desc: '',
-    stat1Value: '',
-    stat1Label: '',
-    stat2Value: '',
-    stat2Label: '',
-    stat3Value: '',
-    stat3Label: ''
+    ...DEFAULT_ABOUT_FIELDS
   });
 
   // Contact section editing
   const [editingContactField, setEditingContactField] = useState<string | null>(null);
   const [contactFieldValue, setContactFieldValue] = useState('');
   const [contactExtraFields, setContactExtraFields] = useState({
-    addressLabel: '',
-    addressLine1: '',
-    addressLine2: '',
-    phoneLabel: '',
-    phoneLine1: '',
-    phoneLine2: '',
-    emailLabel: '',
-    emailLine1: '',
-    emailLine2: '',
-    mapUrl: ''
+    ...DEFAULT_CONTACT_FIELDS
   });
 
   // Footer section editing
@@ -551,7 +530,17 @@ const Admin = () => {
         console.log('Hero ID:', contentMap.hero?.id);
         console.log('About ID:', contentMap.about?.id);
         console.log('Contact ID:', contentMap.contact?.id);
-        
+
+        // Restaurar títulos principales si la base no los tiene guardados
+        if (contentMap.about) {
+          contentMap.about.title = contentMap.about.title || DEFAULT_ABOUT.title;
+          contentMap.about.subtitle = contentMap.about.subtitle || DEFAULT_ABOUT.subtitle;
+        }
+        if (contentMap.contact) {
+          contentMap.contact.title = contentMap.contact.title || DEFAULT_CONTACT.title;
+          contentMap.contact.subtitle = contentMap.contact.subtitle || DEFAULT_CONTACT.subtitle;
+        }
+
         setPageContent(contentMap);
         
         // Load hero config from hero.content (JSON)
@@ -643,20 +632,20 @@ const Admin = () => {
           try {
             const parsed = JSON.parse(contentMap.about.content);
             setAboutExtraFields({
-              firstParagraph: parsed.firstParagraph || '',
-              secondParagraph: parsed.secondParagraph || '',
-              value1Title: parsed.value1Title || '',
-              value1Desc: parsed.value1Desc || '',
-              value2Title: parsed.value2Title || '',
-              value2Desc: parsed.value2Desc || '',
-              value3Title: parsed.value3Title || '',
-              value3Desc: parsed.value3Desc || '',
-              stat1Value: parsed.stat1Value || '',
-              stat1Label: parsed.stat1Label || '',
-              stat2Value: parsed.stat2Value || '',
-              stat2Label: parsed.stat2Label || '',
-              stat3Value: parsed.stat3Value || '',
-              stat3Label: parsed.stat3Label || ''
+              firstParagraph: parsed.firstParagraph || DEFAULT_ABOUT_FIELDS.firstParagraph,
+              secondParagraph: parsed.secondParagraph || DEFAULT_ABOUT_FIELDS.secondParagraph,
+              value1Title: parsed.value1Title || DEFAULT_ABOUT_FIELDS.value1Title,
+              value1Desc: parsed.value1Desc || DEFAULT_ABOUT_FIELDS.value1Desc,
+              value2Title: parsed.value2Title || DEFAULT_ABOUT_FIELDS.value2Title,
+              value2Desc: parsed.value2Desc || DEFAULT_ABOUT_FIELDS.value2Desc,
+              value3Title: parsed.value3Title || DEFAULT_ABOUT_FIELDS.value3Title,
+              value3Desc: parsed.value3Desc || DEFAULT_ABOUT_FIELDS.value3Desc,
+              stat1Value: parsed.stat1Value || DEFAULT_ABOUT_FIELDS.stat1Value,
+              stat1Label: parsed.stat1Label || DEFAULT_ABOUT_FIELDS.stat1Label,
+              stat2Value: parsed.stat2Value || DEFAULT_ABOUT_FIELDS.stat2Value,
+              stat2Label: parsed.stat2Label || DEFAULT_ABOUT_FIELDS.stat2Label,
+              stat3Value: parsed.stat3Value || DEFAULT_ABOUT_FIELDS.stat3Value,
+              stat3Label: parsed.stat3Label || DEFAULT_ABOUT_FIELDS.stat3Label
             });
             console.log('Loaded about extra fields:', parsed);
           } catch {
@@ -669,16 +658,16 @@ const Admin = () => {
           try {
             const parsed = JSON.parse(contentMap.contact.content);
             setContactExtraFields({
-              addressLabel: parsed.addressLabel || '',
-              addressLine1: parsed.addressLine1 || '',
-              addressLine2: parsed.addressLine2 || '',
-              phoneLabel: parsed.phoneLabel || '',
-              phoneLine1: parsed.phoneLine1 || '',
-              phoneLine2: parsed.phoneLine2 || '',
-              emailLabel: parsed.emailLabel || '',
-              emailLine1: parsed.emailLine1 || '',
-              emailLine2: parsed.emailLine2 || '',
-              mapUrl: parsed.mapUrl || ''
+              addressLabel: parsed.addressLabel || DEFAULT_CONTACT_FIELDS.addressLabel,
+              addressLine1: parsed.addressLine1 || DEFAULT_CONTACT_FIELDS.addressLine1,
+              addressLine2: parsed.addressLine2 || DEFAULT_CONTACT_FIELDS.addressLine2,
+              phoneLabel: parsed.phoneLabel || DEFAULT_CONTACT_FIELDS.phoneLabel,
+              phoneLine1: parsed.phoneLine1 || DEFAULT_CONTACT_FIELDS.phoneLine1,
+              phoneLine2: parsed.phoneLine2 || DEFAULT_CONTACT_FIELDS.phoneLine2,
+              emailLabel: parsed.emailLabel || DEFAULT_CONTACT_FIELDS.emailLabel,
+              emailLine1: parsed.emailLine1 || DEFAULT_CONTACT_FIELDS.emailLine1,
+              emailLine2: parsed.emailLine2 || DEFAULT_CONTACT_FIELDS.emailLine2,
+              mapUrl: parsed.mapUrl || DEFAULT_CONTACT_FIELDS.mapUrl
             });
             console.log('Loaded contact extra fields:', parsed);
           } catch {
@@ -1613,10 +1602,10 @@ const Admin = () => {
 
   // About field editing helpers
   const getAboutFieldValue = (field: string): string => {
-    if (field === 'title') return pendingPageContent.about?.title || pageContent.about?.title || '';
-    if (field === 'subtitle') return pendingPageContent.about?.subtitle || pageContent.about?.subtitle || '';
-    if (field === 'content') return aboutExtraFields.firstParagraph || '';
-    return aboutExtraFields[field as keyof typeof aboutExtraFields] || '';
+    if (field === 'title') return pendingPageContent.about?.title || pageContent.about?.title || DEFAULT_ABOUT.title;
+    if (field === 'subtitle') return pendingPageContent.about?.subtitle || pageContent.about?.subtitle || DEFAULT_ABOUT.subtitle;
+    if (field === 'content') return aboutExtraFields.firstParagraph || DEFAULT_ABOUT_FIELDS.firstParagraph;
+    return aboutExtraFields[field as keyof typeof aboutExtraFields] || DEFAULT_ABOUT_FIELDS[field as keyof typeof DEFAULT_ABOUT_FIELDS] || '';
   };
 
   const getAboutFieldLabel = (field: string): string => {
@@ -1669,9 +1658,9 @@ const Admin = () => {
 
   // Contact field editing helpers
   const getContactFieldValue = (field: string): string => {
-    if (field === 'title') return pendingPageContent.contact?.title || pageContent.contact?.title || '';
-    if (field === 'subtitle') return pendingPageContent.contact?.subtitle || pageContent.contact?.subtitle || '';
-    return contactExtraFields[field as keyof typeof contactExtraFields] || '';
+    if (field === 'title') return pendingPageContent.contact?.title || pageContent.contact?.title || DEFAULT_CONTACT.title;
+    if (field === 'subtitle') return pendingPageContent.contact?.subtitle || pageContent.contact?.subtitle || DEFAULT_CONTACT.subtitle;
+    return contactExtraFields[field as keyof typeof contactExtraFields] || DEFAULT_CONTACT_FIELDS[field as keyof typeof DEFAULT_CONTACT_FIELDS] || '';
   };
 
   const getContactFieldLabel = (field: string): string => {
@@ -3091,7 +3080,7 @@ const Admin = () => {
         <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[85vh] overflow-y-auto rounded-xl sm:rounded-2xl p-3 sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 sm:gap-3">
-              <div className="p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 text-primary">
+              <div className="p-1.5 sm:p-2.5 rounded-lg sm:rounded-xl bg-muted text-foreground">
                 <Video className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
               <div>

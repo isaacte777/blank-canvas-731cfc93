@@ -1,5 +1,6 @@
 import communityImageDefault from "@/assets/community.jpg";
 import { Heart, Users, Book, Edit3 } from "lucide-react";
+import { DEFAULT_ABOUT, DEFAULT_ABOUT_FIELDS } from "@/lib/contentDefaults";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 
 export interface GalleryImage {
@@ -62,8 +63,24 @@ export const About = ({
   const { ref, isVisible } = useScrollAnimation();
   const communityImage = image_url || communityImageDefault;
   
-  // No default gallery images - only show what's in the database
-  const images = galleryImages.length > 0 ? galleryImages : [];
+  // Galería de respaldo (imágenes sembradas en las migraciones) para que la
+  // sección siempre muestre el mosaico completo aunque la base esté vacía.
+  const SEED_GALLERY: GalleryImage[] = [
+    { id: "seed-1", image_url: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=600&h=600&fit=crop", alt_text: "Adoración en la iglesia", position: 0 },
+    { id: "seed-2", image_url: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&h=800&fit=crop", alt_text: "Comunidad unida", position: 1 },
+    { id: "seed-3", image_url: "https://images.unsplash.com/photo-1544427920-c49ccfb85579?w=600&h=800&fit=crop", alt_text: "Estudio bíblico", position: 2 },
+    { id: "seed-4", image_url: "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&h=600&fit=crop", alt_text: "Oración comunitaria", position: 3 },
+    { id: "seed-5", image_url: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop", alt_text: "Ministerio de jóvenes", position: 4 },
+  ];
+  const images = galleryImages.length > 0 ? galleryImages : SEED_GALLERY;
+  const isSeedImage = (image: GalleryImage) => image.id.startsWith("seed-");
+
+  // Fallbacks: si la base no tiene valores, mostramos la información histórica
+  const displayTitle = title || DEFAULT_ABOUT.title;
+  const displaySubtitle = subtitle || DEFAULT_ABOUT.subtitle;
+  const displayContent = content || DEFAULT_ABOUT_FIELDS.firstParagraph;
+  const displaySecond = secondParagraph || DEFAULT_ABOUT_FIELDS.secondParagraph;
+  const hasStats = Boolean(stat1Value || stat2Value || stat3Value);
 
   // Gallery layout: single featured image (0–1), Mondrian-style varied blocks (2+)
   const galleryMode = images.length <= 1 ? 'single' : 'mondrian';
@@ -78,22 +95,22 @@ export const About = ({
   const values = [
     {
       icon: Heart,
-      title: value1Title || "",
-      description: value1Desc || "",
+      title: value1Title || DEFAULT_ABOUT_FIELDS.value1Title,
+      description: value1Desc || DEFAULT_ABOUT_FIELDS.value1Desc,
       titleField: 'value1Title' as const,
       descField: 'value1Desc' as const
     },
     {
       icon: Users,
-      title: value2Title || "",
-      description: value2Desc || "",
+      title: value2Title || DEFAULT_ABOUT_FIELDS.value2Title,
+      description: value2Desc || DEFAULT_ABOUT_FIELDS.value2Desc,
       titleField: 'value2Title' as const,
       descField: 'value2Desc' as const
     },
     {
       icon: Book,
-      title: value3Title || "",
-      description: value3Desc || "",
+      title: value3Title || DEFAULT_ABOUT_FIELDS.value3Title,
+      description: value3Desc || DEFAULT_ABOUT_FIELDS.value3Desc,
       titleField: 'value3Title' as const,
       descField: 'value3Desc' as const
     }
@@ -137,8 +154,8 @@ export const About = ({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
-      {/* Edit button for gallery images */}
-      {isEditable && onEditGalleryImage && (
+      {/* Edit button for gallery images (hidden on fallback seed images) */}
+      {isEditable && onEditGalleryImage && !isSeedImage(image) && (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -161,19 +178,19 @@ export const About = ({
           <div className={`space-y-4 sm:space-y-6 md:space-y-8 ${isVisible ? 'animate-slide-left-wow' : 'opacity-0'}`}>
             <div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground tracking-wide">
-                <EditableText field="title">{title || ''}</EditableText>{' '}
-                <EditableText field="subtitle"><span className="text-purple">{subtitle || ''}</span></EditableText>
+                <EditableText field="title">{displayTitle}</EditableText>{' '}
+                <EditableText field="subtitle"><span className="text-purple">{displaySubtitle}</span></EditableText>
               </h2>
               <div className="w-16 h-1 bg-purple rounded-full mt-2 sm:mt-3" />
             </div>
             <EditableText field="content">
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed font-body">
-                {content || ''}
+                {displayContent}
               </p>
             </EditableText>
             <EditableText field="secondParagraph">
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed font-body">
-                {secondParagraph || ''}
+                {displaySecond}
               </p>
             </EditableText>
 
@@ -201,19 +218,21 @@ export const About = ({
               })}
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6 pt-3 sm:pt-4 md:pt-6 border-t border-turquoise/30">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <EditableText field={stat.valueField}>
-                    <div className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading ${stat.color} mb-0.5 sm:mb-1 md:mb-2`}>{stat.value}</div>
-                  </EditableText>
-                  <EditableText field={stat.labelField}>
-                    <div className="text-[9px] sm:text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-body">{stat.label}</div>
-                  </EditableText>
-                </div>
-              ))}
-            </div>
+            {/* Stats (ocultos si no hay valores cargados) */}
+            {hasStats && (
+              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6 pt-3 sm:pt-4 md:pt-6 border-t border-turquoise/30">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <EditableText field={stat.valueField}>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading ${stat.color} mb-0.5 sm:mb-1 md:mb-2`}>{stat.value}</div>
+                    </EditableText>
+                    <EditableText field={stat.labelField}>
+                      <div className="text-[9px] sm:text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-body">{stat.label}</div>
+                    </EditableText>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Right side - Image Gallery */}
