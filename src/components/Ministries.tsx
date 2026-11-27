@@ -32,31 +32,35 @@ interface MinistriesProps {
 /** Copies of the list rendered in the strip: 3 cycles enable seamless infinite wrap. */
 const COPIES = 3;
 
-// True visual cycle: one card + gap (scrollWidth/3 drifts by gap/3 because
-// the strip has no trailing gap after the last card).
+// True visual cycle: one FULL copy of the list = N cards + N gaps.
+// (scrollWidth/3 drifts by gap/3 because the strip has no trailing gap,
+// and a single card+gap is far narrower than the viewport, which disabled wrap.)
 const getCycle = (el: HTMLDivElement): number => {
   const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
   const first = el.firstElementChild as HTMLElement | null;
-  if (first && first.offsetWidth > 0) return first.offsetWidth + gap;
+  if (first && first.offsetWidth > 0) {
+    const n = Math.max(1, Math.round(el.children.length / COPIES));
+    return n * (first.offsetWidth + gap);
+  }
   return el.scrollWidth / COPIES;
 };
 
-// Keep the viewport inside the middle cycle so the strip looks endless.
-// Returns the ACTUAL shift applied (may be less than a cycle if the browser
-// clamped) so drag state stays consistent.
+// Keep the viewport inside [cycle, 2*cycle) so the strip looks endless in
+// BOTH directions. We deliberately do NOT wait for scrollLeft to reach `max`:
+// fractional scroll positions can fall ~1px short of the computed maximum and
+// stall the reverse direction. Returns the ACTUAL shift applied.
 const applyWrap = (el: HTMLDivElement): number => {
   const cycle = getCycle(el);
   const vw = el.clientWidth;
-  const max = el.scrollWidth - vw; // exact maximum scrollLeft (browser clamps here)
-  // Need room for a full cycle on both sides to wrap without oscillating
-  if (cycle <= vw || max < 2 * cycle) return 0;
+  const max = el.scrollWidth - vw;
+  // Room for a full cycle + safety margin (fractional rounding)
+  if (cycle <= vw || max < 2 * cycle + 4) return 0;
   if (el.scrollLeft < cycle) {
     const before = el.scrollLeft;
     el.scrollLeft = before + cycle;
     return el.scrollLeft - before;
   }
-  if (el.scrollLeft >= max) {
-    // NOTE: `>=` (not `>`) — scrollLeft can never EXCEED max, it clamps there
+  if (el.scrollLeft >= 2 * cycle) {
     const before = el.scrollLeft;
     el.scrollLeft = before - cycle;
     return el.scrollLeft - before;
@@ -87,8 +91,8 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
     if (!el) return;
     const cycle = getCycle(el);
     const max = el.scrollWidth - el.clientWidth;
-    // Start at the beginning of the middle cycle when wrapping is possible
-    el.scrollLeft = cycle > el.clientWidth && max >= 2 * cycle ? Math.min(cycle, max) : 0;
+    // Start at the beginning of the wrap window [cycle, 2*cycle) when possible
+    el.scrollLeft = cycle > el.clientWidth && max >= 2 * cycle + 4 ? cycle : 0;
     const onResize = () => applyWrap(el);
     window.addEventListener('resize', onResize);
     return () => {
@@ -209,7 +213,7 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
             onClickCapture={handleClickCapture}
             onDragStart={(e) => e.preventDefault()}
             onDrop={(e) => e.preventDefault()}
-            className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar pb-1 select-none cursor-grab active:cursor-grabbing"
+            className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar pt-1 pb-1 select-none cursor-grab active:cursor-grabbing"
           >
             {Array.from({ length: COPIES }, (_, copyIdx) =>
               ministries.map((ministry) => {
@@ -224,7 +228,7 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
                     tabIndex={isMiddle ? undefined : -1}
                     draggable={false}
                     onDragStart={(e) => e.preventDefault()}
-                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500"
+                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 focus:outline-none focus-visible:outline-none"
                   >
                     {/* Full-bleed media: the image covers the whole portrait rectangle */}
                     {ministry.image_url ? (
