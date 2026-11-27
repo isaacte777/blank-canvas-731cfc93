@@ -2333,8 +2333,8 @@ const Admin = () => {
                       </div>
                     </div>
 
-                    {/* Page Content Preview - Using Real Components */}
-                    <div className="w-full overflow-hidden relative">
+                    {/* Page Content Preview - Using Real Components (same base background as the public page) */}
+                    <div className="w-full overflow-hidden relative bg-background">
                       {/* ========== HERO SECTION WITH NAVIGATION ========== */}
                       <div id="inicio" className="relative">
                         <EditableWrapper 
@@ -2346,7 +2346,7 @@ const Admin = () => {
                       </div>
 
                       {/* ========== PRAYER BANNER ========== */}
-                      <div id="oracion">
+                      <div id="oracion" className="scroll-mt-16 md:scroll-mt-20">
                         <PrayerBanner 
                           title={prayerFields.title}
                           subtitle={prayerFields.subtitle}
@@ -2361,7 +2361,7 @@ const Admin = () => {
                       </div>
 
                       {/* ========== ANNOUNCEMENTS SECTION ========== */}
-                      <div className="relative" id="anuncios">
+                      <div className="relative scroll-mt-16 md:scroll-mt-20" id="anuncios">
                         <Announcements 
                           announcements={announcements.filter(a => a.is_visible)} 
                           isEditable={true}
@@ -2374,7 +2374,7 @@ const Admin = () => {
                       </div>
 
                       {/* ========== QUOTE SECTION ========== */}
-                      <div id="cita">
+                      <div id="cita" className="scroll-mt-16 md:scroll-mt-20">
                         <QuoteSection 
                           quote={quoteFields.quote}
                           author={quoteFields.author}
@@ -2385,7 +2385,7 @@ const Admin = () => {
                       </div>
 
                       {/* ========== SERVICES SECTION ========== */}
-                      <div className="relative" id="servicios">
+                      <div className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20" id="servicios">
                         <Services 
                           services={services.filter(s => s.is_visible)} 
                           onEditService={openServiceEditor}
@@ -2407,6 +2407,7 @@ const Admin = () => {
                       </div>
 
                       {/* ========== ABOUT SECTION ========== */}
+                      <div id="nosotros" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
                       <About 
                         title={pendingPageContent.about?.title || pageContent.about?.title}
                         subtitle={pendingPageContent.about?.subtitle || pageContent.about?.subtitle}
@@ -2441,9 +2442,10 @@ const Admin = () => {
                         stat3Value={aboutExtraFields.stat3Value}
                         stat3Label={aboutExtraFields.stat3Label}
                       />
+                      </div>
 
                       {/* ========== MINISTERIOS PREVIEW ========== */}
-                      <div id="ministerios">
+                      <div id="ministerios" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
                         <Ministries ministries={(() => {
                           // Merge ministries with pending changes for preview
                           const merged = new Map<string, Ministry>();
@@ -2528,6 +2530,7 @@ const Admin = () => {
 
 
                       {/* ========== CONTACT SECTION ========== */}
+                      <div id="contacto" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
                       <Contact 
                         title={pendingPageContent.contact?.title || pageContent.contact?.title}
                         subtitle={pendingPageContent.contact?.subtitle || pageContent.contact?.subtitle}
@@ -2548,6 +2551,7 @@ const Admin = () => {
                         emailLine2={contactExtraFields.emailLine2}
                         mapUrl={contactExtraFields.mapUrl}
                       />
+                      </div>
 
                       {/* ========== FOOTER ========== */}
                       <Footer
@@ -2561,6 +2565,12 @@ const Admin = () => {
                         youtubeUrl={footerFields.youtubeUrl}
                         emailUrl={footerFields.emailUrl}
                         ministries={ministries}
+                      />
+
+                      {/* Floating WhatsApp - same as the public page (offset so it doesn't cover the sidebar) */}
+                      <WhatsAppButton
+                        phoneNumber={footerFields.whatsappNumber}
+                        className="lg:right-[calc(18rem_+_1rem)]"
                       />
                     </div>
                   </>
