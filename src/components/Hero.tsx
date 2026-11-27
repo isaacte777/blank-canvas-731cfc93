@@ -1,0 +1,359 @@
+import { Volume2, VolumeX } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { convertToYouTubeEmbedUrl } from "@/lib/youtubeHelper";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+export interface HeroConfig {
+  mainTitle: string;
+  accentTitle: string;
+  tagline1: string;
+  tagline2: string;
+  tagline3: string;
+  saturdayLabel: string;
+  saturdayTime: string;
+  sundayLabel: string;
+  sundayTime: string;
+}
+
+export interface HeroMedia {
+  mediaType: 'video' | 'image' | 'video_file';
+  videoUrl: string;
+  imageUrl: string;
+  videoFileUrl?: string;
+  // Mobile-specific media
+  mobileMediaType?: 'video' | 'image' | 'video_file';
+  mobileVideoUrl?: string;
+  mobileImageUrl?: string;
+  mobileVideoFileUrl?: string;
+}
+
+export const defaultHeroConfig: HeroConfig = {
+  mainTitle: 'Horario de',
+  accentTitle: 'SERVICIOS',
+  tagline1: 'CREE.',
+  tagline2: 'PERTENECE.',
+  tagline3: 'TRANSFORMA.',
+  saturdayLabel: 'Sabado',
+  saturdayTime: '19:00 hs',
+  sundayLabel: 'Domingo',
+  sundayTime: '10:00 y 19:00 hs'
+};
+
+export const defaultHeroMedia: HeroMedia = {
+  mediaType: 'video',
+  videoUrl: '',
+  imageUrl: '',
+  videoFileUrl: '',
+  mobileMediaType: undefined,
+  mobileVideoUrl: '',
+  mobileImageUrl: '',
+  mobileVideoFileUrl: ''
+};
+
+interface HeroProps {
+  config?: HeroConfig;
+  media?: HeroMedia;
+}
+
+// Extend window to include YouTube Player API
+declare global {
+  interface Window {
+    YT: {
+      Player: new (elementId: string, options: {
+        events?: {
+          onReady?: (event: { target: YTPlayer }) => void;
+          onStateChange?: (event: { data: number }) => void;
+        };
+      }) => YTPlayer;
+      PlayerState: {
+        PLAYING: number;
+      };
+    };
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
+
+interface YTPlayer {
+  mute: () => void;
+  unMute: () => void;
+  isMuted: () => boolean;
+  playVideo: () => void;
+}
+
+export const Hero = ({ config, media }: HeroProps = {}) => {
+  const [isMuted, setIsMuted] = useState(true);
+  const [heroConfig, setHeroConfig] = useState<HeroConfig>(config || defaultHeroConfig);
+  const [heroMedia, setHeroMedia] = useState<HeroMedia>(media || defaultHeroMedia);
+  const [ytPlayerReady, setYtPlayerReady] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const ytPlayerRef = useRef<YTPlayer | null>(null);
+  const isMobile = useIsMobile();
+
+  // If config is passed as prop, use it (for admin preview)
+  useEffect(() => {
+    if (config) {
+      setHeroConfig(config);
+    }
+  }, [config]);
+
+  // If media is passed as prop, use it (for admin preview)
+  useEffect(() => {
+    if (media) {
+      setHeroMedia(media);
+    }
+  }, [media]);
+
+  // Only fetch from DB if no config/media props are provided
+  useEffect(() => {
+    if (!config || !media) {
+      fetchHeroData();
+    }
+  }, [config, media]);
+
+  const fetchHeroData = async () => {
+    const { data } = await supabase
+      .from('page_content')
+      .select('content, video_url, image_url, media_type, video_file_url')
+      .eq('section', 'hero')
+      .maybeSingle();
+    
+    if (data) {
+      // Parse config from content
+      if (data.content && !config) {
+        try {
+          const parsed = JSON.parse(data.content);
+          setHeroConfig({ ...defaultHeroConfig, ...parsed });
+        } catch {
+          // If not valid JSON, use defaults
+        }
+      }
+      
+      // Set media if not provided via props
+      if (!media) {
+        const dataAny = data as Record<string, unknown>;
+        setHeroMedia({
+          mediaType: (dataAny.media_type as 'video' | 'image' | 'video_file') || 'video',
+          videoUrl: (dataAny.video_url as string) || defaultHeroMedia.videoUrl,
+          imageUrl: (dataAny.image_url as string) || '',
+          videoFileUrl: (dataAny.video_file_url as string) || '',
+          mobileMediaType: (dataAny.mobile_media_type as 'video' | 'image' | 'video_file') || undefined,
+          mobileVideoUrl: (dataAny.mobile_video_url as string) || '',
+          mobileImageUrl: (dataAny.mobile_image_url as string) || '',
+          mobileVideoFileUrl: (dataAny.mobile_video_file_url as string) || ''
+        });
+      }
+    }
+  };
+
+  // Load YouTube IFrame API
+  useEffect(() => {
+    if (!document.getElementById('youtube-iframe-api')) {
+      const tag = document.createElement('script');
+      tag.id = 'youtube-iframe-api';
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+  }, []);
+
+  const onPlayerReady = useCallback((event: { target: YTPlayer }) => {
+    ytPlayerRef.current = event.target;
+    setYtPlayerReady(true);
+    // Start muted
+    event.target.mute();
+  }, []);
+
+  // Initialize YouTube player when iframe is ready
+  useEffect(() => {
+    const initPlayer = () => {
+      if (window.YT && window.YT.Player && document.getElementById('hero-youtube-player')) {
+        new window.YT.Player('hero-youtube-player', {
+          events: {
+            onReady: onPlayerReady
+          }
+        });
+      }
+    };
+
+    // Check if API is already loaded
+    if (window.YT && window.YT.Player) {
+      initPlayer();
+    } else {
+      // Wait for API to load
+      window.onYouTubeIframeAPIReady = initPlayer;
+    }
+  }, [heroMedia.videoUrl, heroMedia.mobileVideoUrl, onPlayerReady]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isMuted) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(error => {
+          console.log("Error al reproducir audio:", error);
+        });
+      }
+    }
+  }, [isMuted]);
+
+  // Control YouTube player mute state
+  useEffect(() => {
+    if (ytPlayerRef.current && ytPlayerReady) {
+      if (isMuted) {
+        ytPlayerRef.current.mute();
+      } else {
+        ytPlayerRef.current.unMute();
+      }
+    }
+  }, [isMuted, ytPlayerReady]);
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
+  // Determine which media to use based on device
+  const hasMobileMedia = heroMedia.mobileMediaType && (
+    (heroMedia.mobileMediaType === 'video' && heroMedia.mobileVideoUrl) ||
+    (heroMedia.mobileMediaType === 'video_file' && heroMedia.mobileVideoFileUrl) ||
+    (heroMedia.mobileMediaType === 'image' && heroMedia.mobileImageUrl)
+  );
+
+  const currentMediaType = (isMobile && hasMobileMedia) 
+    ? heroMedia.mobileMediaType! 
+    : heroMedia.mediaType;
+  
+  const currentVideoUrl = (isMobile && hasMobileMedia && heroMedia.mobileMediaType === 'video') 
+    ? heroMedia.mobileVideoUrl! 
+    : heroMedia.videoUrl;
+  
+  const currentVideoFileUrl = (isMobile && hasMobileMedia && heroMedia.mobileMediaType === 'video_file') 
+    ? heroMedia.mobileVideoFileUrl! 
+    : heroMedia.videoFileUrl;
+  
+  const currentImageUrl = (isMobile && hasMobileMedia && heroMedia.mobileMediaType === 'image') 
+    ? heroMedia.mobileImageUrl! 
+    : heroMedia.imageUrl;
+
+  return (
+    <section className="relative h-[100dvh] w-full overflow-hidden bg-background">
+      {/* Audio de fondo */}
+      <audio 
+        ref={audioRef}
+        loop
+        className="hidden"
+      >
+      </audio>
+
+      {/* Background Media - Video or Image */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center">
+        {currentMediaType === 'video' && currentVideoUrl ? (
+            (() => {
+              const embedUrl = convertToYouTubeEmbedUrl(currentVideoUrl);
+              const videoId = embedUrl.split('/').pop()?.split('?')[0] || '';
+              return (
+                <>
+                  <iframe
+                    id="hero-youtube-player"
+                    className="w-full h-full min-w-[100%] min-h-[100%] object-cover pointer-events-none"
+                    src={`${embedUrl}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&showinfo=0&rel=0&modestbranding=1&disablekb=1&fs=0&iv_load_policy=3&playsinline=1&enablejsapi=1&origin=${window.location.origin}`}
+                    title="Video de Bienvenida"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    style={{ 
+                      border: 0,
+                      aspectRatio: '16/9',
+                      width: '177.78vh',
+                      height: '100vh',
+                      minWidth: '100%',
+                      minHeight: '100%',
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      pointerEvents: 'none'
+                    }}
+                  />
+                  {/* Invisible overlay to block all interactions */}
+                  <div className="absolute inset-0 z-10" />
+                </>
+              );
+            })()
+          ) : currentMediaType === 'video_file' && currentVideoFileUrl ? (
+            <video
+              className="w-full h-full object-cover absolute inset-0 pointer-events-none"
+              src={currentVideoFileUrl}
+              autoPlay
+              loop
+              muted={isMuted}
+              playsInline
+            />
+          ) : currentImageUrl ? (
+            <img
+              src={currentImageUrl}
+              alt="Fondo del Hero"
+              className="w-full h-full object-cover absolute inset-0"
+            />
+          ) : null}
+        </div>
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+        
+        {/* Mute Button - Show for video and video_file */}
+        {(currentMediaType === 'video' || currentMediaType === 'video_file') && (
+          <button
+            onClick={toggleMute}
+            className="absolute top-16 sm:top-20 right-2 sm:right-6 z-50 p-2 sm:p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300 backdrop-blur-sm border border-white/20 cursor-pointer"
+            aria-label={isMuted ? "Activar sonido" : "Silenciar"}
+          >
+            {isMuted ? (
+              <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-white pointer-events-none" />
+            ) : (
+              <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-white pointer-events-none" />
+            )}
+          </button>
+        )}
+      </div>
+      
+      {/* Content overlay - Centered elegant design */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 sm:px-6">
+        {/* Main content container */}
+        <div className="text-center space-y-6 sm:space-y-8 md:space-y-10">
+          {/* Main Title - Elegant serif typography */}
+          <div className="space-y-1 sm:space-y-2 animate-fade-in">
+            <h1 
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-wide uppercase"
+            >
+              {heroConfig.mainTitle}
+            </h1>
+            
+            <h2 
+              className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-[0.15em] sm:tracking-[0.2em] uppercase"
+            >
+              {heroConfig.accentTitle}
+            </h2>
+          </div>
+
+          {/* Service schedule - Clean minimal design */}
+          <div className="space-y-2 sm:space-y-3 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <p 
+              className="text-lg sm:text-xl md:text-2xl text-white/90 tracking-wide"
+              style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic' }}
+            >
+              {heroConfig.saturdayLabel} {heroConfig.saturdayTime}
+            </p>
+            <p 
+              className="text-lg sm:text-xl md:text-2xl text-white/90 tracking-wide"
+              style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic' }}
+            >
+              {heroConfig.sundayLabel} {heroConfig.sundayTime}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Subtle gradient at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-black/50 to-transparent pointer-events-none z-10" />
+    </section>
+  );
+};
