@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { PageTracker } from "@/components/PageTracker";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import SetupOwner from "./pages/SetupOwner";
 import Admin from "./pages/Admin";
 import AdminMessages from "./pages/AdminMessages";
 import AdminDonations from "./pages/AdminDonations";
@@ -29,6 +30,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/setup" element={<SetupOwner />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/mensajes" element={<AdminMessages />} />
               <Route path="/admin/donaciones" element={<AdminDonations />} />
