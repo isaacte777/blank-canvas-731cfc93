@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 import cfaAuthLogo from '@/assets/cfa-auth-logo.png';
 
 const loginSchema = z.object({
@@ -63,6 +64,27 @@ const Auth = () => {
       });
       navigate('/admin');
     }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!loginSchema.shape.email.safeParse(email).success) {
+      toast({
+        title: 'Email requerido',
+        description: 'Escribe arriba el email del usuario y luego pulsa este enlace.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    toast({
+      title: error ? 'Error' : 'Enlace enviado',
+      description: error
+        ? error.message
+        : 'Si ese email existe, recibirás un enlace para restablecer tu contraseña.',
+      variant: error ? 'destructive' : undefined,
+    });
   };
 
   if (loading) {
@@ -123,6 +145,14 @@ const Auth = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-background/50"
                 />
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <HelpCircle className="h-3.5 w-3.5" />
+                  ¿Olvidaste tu contraseña?
+                </button>
               </div>
               <Button 
                 type="submit" 
