@@ -149,7 +149,7 @@ export const Contact = ({
   };
   
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-muted/30" ref={ref}>
+    <section className="py-12 sm:py-16 md:py-20 bg-muted/30" ref={ref}>
       <div className="container mx-auto px-4 sm:px-6">
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-14">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground mb-2 sm:mb-3 tracking-wide">

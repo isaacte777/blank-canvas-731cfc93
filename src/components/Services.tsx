@@ -152,7 +152,7 @@ export const Services = ({ services: propServices, onEditService, isEditable = f
 
   return (
     <>
-      <section className="py-16 sm:py-20 md:py-24 bg-background" ref={ref}>
+      <section className="py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
         <div className="container mx-auto px-4 sm:px-6">
           {/* Header consistente con About section */}
           <div className="text-center mb-8 sm:mb-10 md:mb-14">

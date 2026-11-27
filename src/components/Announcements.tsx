@@ -109,7 +109,7 @@ export const Announcements = ({
 
   return (
     <section 
-      className="relative py-16 sm:py-20 md:py-24 overflow-hidden" 
+      className="relative py-12 sm:py-16 md:py-20 overflow-hidden" 
       ref={ref}
     >
       {/* Distant background layer - slow parallax + subtle continuous movement */}
@@ -165,7 +165,7 @@ export const Announcements = ({
             {announcements.map((announcement, index) => (
               <div 
                 key={announcement.id} 
-                className="relative group overflow-hidden rounded-xl sm:rounded-2xl aspect-square sm:aspect-[4/5]"
+                className="relative group overflow-hidden rounded-xl sm:rounded-2xl h-[240px] sm:h-[280px] md:h-[320px] lg:h-[340px]"
                 style={{ animationDelay: `${index * 0.1 + 0.4}s` }}
               >
                 {/* Background Image */}

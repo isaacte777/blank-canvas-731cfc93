@@ -37,7 +37,7 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
   }
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-background" ref={ref}>
+    <section className="py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
       <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className={`text-center mb-8 sm:mb-10 md:mb-14 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
