@@ -67,7 +67,7 @@ export const About = ({
 
   // Gallery layout: single featured image (0–1), Mondrian-style varied blocks (2+)
   const galleryMode = images.length <= 1 ? 'single' : 'mondrian';
-  const galleryHeight = 'h-[280px] sm:h-[400px] md:h-[500px] lg:h-[600px]';
+  const galleryHeight = 'h-[240px] sm:h-[320px] md:h-[400px] lg:h-[460px]';
   // Flex weights create blocks of different sizes, like a Mondrian painting
   const LEFT_WEIGHTS = ['flex-[3]', 'flex-[1]', 'flex-[2]'];
   const RIGHT_WEIGHTS = ['flex-[2]', 'flex-[1]', 'flex-[3]'];
@@ -153,7 +153,7 @@ export const About = ({
   );
 
   return (
-    <section className="py-16 sm:py-20 md:py-24 bg-muted/30" ref={ref}>
+    <section className="py-12 sm:py-16 md:py-20 bg-muted/30" ref={ref}>
       <div className="container mx-auto px-4 sm:px-6">
         {/* Main content grid */}
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start max-w-7xl mx-auto">

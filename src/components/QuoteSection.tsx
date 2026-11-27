@@ -26,7 +26,7 @@ export const QuoteSection = ({
   const content = (
     <section 
       ref={ref}
-      className="relative py-16 sm:py-20 md:py-24 bg-gradient-to-b from-background via-muted/40 to-background border-y border-border/40 overflow-hidden"
+      className="relative py-12 sm:py-16 md:py-20 bg-gradient-to-b from-background via-muted/40 to-background border-y border-border/40 overflow-hidden"
     >
         <div className="container mx-auto px-4 sm:px-6">
           <div className={`flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 lg:gap-16 max-w-5xl mx-auto transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
