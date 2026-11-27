@@ -45,22 +45,22 @@ const getCycle = (el: HTMLDivElement): number => {
   return el.scrollWidth / COPIES;
 };
 
-// Keep the viewport inside the middle cycle so the strip looks endless.
-// Returns the ACTUAL shift applied (may be less than a cycle if the browser
-// clamped) so drag state stays consistent.
+// Keep the viewport inside [cycle, 2*cycle) so the strip looks endless in
+// BOTH directions. We deliberately do NOT wait for scrollLeft to reach `max`:
+// fractional scroll positions can fall ~1px short of the computed maximum and
+// stall the reverse direction. Returns the ACTUAL shift applied.
 const applyWrap = (el: HTMLDivElement): number => {
   const cycle = getCycle(el);
   const vw = el.clientWidth;
-  const max = el.scrollWidth - vw; // exact maximum scrollLeft (browser clamps here)
-  // Need room for a full cycle on both sides to wrap without oscillating
-  if (cycle <= vw || max < 2 * cycle) return 0;
+  const max = el.scrollWidth - vw;
+  // Room for a full cycle + safety margin (fractional rounding)
+  if (cycle <= vw || max < 2 * cycle + 4) return 0;
   if (el.scrollLeft < cycle) {
     const before = el.scrollLeft;
     el.scrollLeft = before + cycle;
     return el.scrollLeft - before;
   }
-  if (el.scrollLeft >= max) {
-    // NOTE: `>=` (not `>`) — scrollLeft can never EXCEED max, it clamps there
+  if (el.scrollLeft >= 2 * cycle) {
     const before = el.scrollLeft;
     el.scrollLeft = before - cycle;
     return el.scrollLeft - before;
@@ -91,8 +91,8 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
     if (!el) return;
     const cycle = getCycle(el);
     const max = el.scrollWidth - el.clientWidth;
-    // Start at the beginning of the middle cycle when wrapping is possible
-    el.scrollLeft = cycle > el.clientWidth && max >= 2 * cycle ? Math.min(cycle, max) : 0;
+    // Start at the beginning of the wrap window [cycle, 2*cycle) when possible
+    el.scrollLeft = cycle > el.clientWidth && max >= 2 * cycle + 4 ? cycle : 0;
     const onResize = () => applyWrap(el);
     window.addEventListener('resize', onResize);
     return () => {
