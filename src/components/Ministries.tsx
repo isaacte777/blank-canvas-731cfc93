@@ -32,6 +32,38 @@ interface MinistriesProps {
 /** Copies of the list rendered in the strip: 3 cycles enable seamless infinite wrap. */
 const COPIES = 3;
 
+// True visual cycle: one card + gap (scrollWidth/3 drifts by gap/3 because
+// the strip has no trailing gap after the last card).
+const getCycle = (el: HTMLDivElement): number => {
+  const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
+  const first = el.firstElementChild as HTMLElement | null;
+  if (first && first.offsetWidth > 0) return first.offsetWidth + gap;
+  return el.scrollWidth / COPIES;
+};
+
+// Keep the viewport inside the middle cycle so the strip looks endless.
+// Returns the ACTUAL shift applied (may be less than a cycle if the browser
+// clamped) so drag state stays consistent.
+const applyWrap = (el: HTMLDivElement): number => {
+  const cycle = getCycle(el);
+  const vw = el.clientWidth;
+  const max = el.scrollWidth - vw; // exact maximum scrollLeft (browser clamps here)
+  // Need room for a full cycle on both sides to wrap without oscillating
+  if (cycle <= vw || max < 2 * cycle) return 0;
+  if (el.scrollLeft < cycle) {
+    const before = el.scrollLeft;
+    el.scrollLeft = before + cycle;
+    return el.scrollLeft - before;
+  }
+  if (el.scrollLeft >= max) {
+    // NOTE: `>=` (not `>`) — scrollLeft can never EXCEED max, it clamps there
+    const before = el.scrollLeft;
+    el.scrollLeft = before - cycle;
+    return el.scrollLeft - before;
+  }
+  return 0;
+};
+
 export const Ministries = ({ ministries }: MinistriesProps) => {
   const { ref, isVisible } = useScrollAnimation();
 
@@ -48,30 +80,15 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
     velRef.current = 0;
   };
 
-  // Keep the viewport inside the middle cycle so the strip looks endless:
-  // [cycle, COPIES*cycle - viewport] — jumps are invisible (copies are identical).
-  // Returns the applied shift (±cycle) so drag state can stay consistent.
-  const applyWrap = (el: HTMLDivElement): number => {
-    const cycle = el.scrollWidth / COPIES;
-    const vw = el.clientWidth;
-    if (cycle <= vw || vw >= (COPIES - 1) * cycle) return 0; // not enough content to wrap
-    if (el.scrollLeft < cycle) {
-      el.scrollLeft += cycle;
-      return cycle;
-    }
-    if (el.scrollLeft > COPIES * cycle - vw) {
-      el.scrollLeft -= cycle;
-      return -cycle;
-    }
-    return 0;
-  };
-
   // Position at the start of the middle cycle after mount / list size change
   const count = ministries?.length ?? 0;
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollLeft = el.scrollWidth / COPIES;
+    const cycle = getCycle(el);
+    const max = el.scrollWidth - el.clientWidth;
+    // Start at the beginning of the middle cycle when wrapping is possible
+    el.scrollLeft = cycle > el.clientWidth && max >= 2 * cycle ? Math.min(cycle, max) : 0;
     const onResize = () => applyWrap(el);
     window.addEventListener('resize', onResize);
     return () => {
