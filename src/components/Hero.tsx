@@ -303,7 +303,7 @@ export const Hero = ({ config, media }: HeroProps = {}) => {
             <img
               src={currentImageUrl}
               alt="Fondo del Hero"
-              className="w-full h-full object-cover absolute inset-0"
+              className="w-full h-full object-cover absolute inset-0 animate-kenburns"
             />
           ) : null}
         </div>

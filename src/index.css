@@ -697,3 +697,22 @@ All colors MUST be HSL.
 [role="dialog"] .ring-ring {
   --tw-ring-color: hsl(0 0% 100% / 0.12) !important;
 }
+
+/* ── Marquee cinético (estilo Mosaic): tipografía en movimiento continuo ── */
+.animate-marquee {
+  animation: marqueeScroll 38s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.marquee-band:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee { animation: none; }
+}

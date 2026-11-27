@@ -103,7 +103,7 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
             {events.map((event, index) => (
               <Card 
                 key={event.id}
-                className="group h-full bg-card/50 backdrop-blur-sm border border-border/50 hover:border-turquoise/60 rounded-2xl overflow-hidden hover:-translate-y-2 hover:shadow-[0_20px_50px_-15px_hsl(var(--turquoise)/0.2)] transition-transform duration-300 flex flex-col"
+                className="group h-full bg-card/50 backdrop-blur-sm border border-border/50 hover:border-border rounded-2xl overflow-hidden hover:-translate-y-2 hover:shadow-[0_20px_50px_-15px_hsl(var(--foreground)/0.15)] transition-all duration-500 flex flex-col"
               >
                 <CardContent className="p-0 h-full flex flex-col relative">
                   {/* Edit Button for Admin */}
@@ -123,7 +123,7 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                       <img 
                         src={event.image_url} 
                         alt={event.title}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
                     </div>
@@ -146,7 +146,7 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                         </div>
                       </div>
                       {event.event_time && (
-                        <span className="text-xs font-medium text-turquoise bg-turquoise/10 px-2.5 py-1 rounded-full border border-turquoise/20">
+                        <span className="text-xs font-medium text-foreground bg-muted px-2.5 py-1 rounded-full border border-border/60">
                           {formatTime(event.event_time)}
                         </span>
                       )}
@@ -181,7 +181,7 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                     {/* Action Button */}
                     <Button 
                       variant="ghost" 
-                      className="w-full mt-4 h-11 bg-foreground/5 hover:bg-turquoise text-foreground/70 hover:text-background border border-border/50 hover:border-turquoise rounded-xl transition-all duration-300 font-medium text-sm uppercase tracking-wider group/btn"
+                      className="w-full mt-4 h-11 bg-foreground/5 hover:bg-muted text-foreground/70 hover:text-foreground border border-border/50 hover:border-border rounded-xl transition-all duration-300 font-medium text-sm uppercase tracking-wider group/btn"
                       style={{ fontFamily: 'var(--font-hero)' }}
                       onClick={() => setSelectedEvent(event)}
                     >
