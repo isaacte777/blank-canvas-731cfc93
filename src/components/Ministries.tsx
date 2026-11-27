@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
@@ -31,6 +32,44 @@ interface MinistriesProps {
 export const Ministries = ({ ministries }: MinistriesProps) => {
   const { ref, isVisible } = useScrollAnimation();
 
+  // Single-lane carousel: drag with the mouse to slide through the modules
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse') return; // touch keeps native scrolling
+    const el = scrollRef.current;
+    if (!el) return;
+    dragState.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft, moved: false };
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    if (!dragState.current.active || !el) return;
+    const dx = e.clientX - dragState.current.startX;
+    if (Math.abs(dx) > 5) dragState.current.moved = true;
+    el.scrollLeft = dragState.current.startScroll - dx;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    dragState.current.active = false;
+    try {
+      scrollRef.current?.releasePointerCapture(e.pointerId);
+    } catch {
+      /* pointer already released */
+    }
+  };
+
+  // Prevent navigation when the user was dragging instead of clicking
+  const handleClickCapture = (e: React.MouseEvent) => {
+    if (dragState.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragState.current.moved = false;
+    }
+  };
+
   // Don't render if no ministries
   if (!ministries || ministries.length === 0) {
     return null;
@@ -50,8 +89,16 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
           </p>
         </div>
 
-        {/* Responsive grid of ministry cards */}
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6 max-w-7xl mx-auto transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+        {/* Single lane: all modules aligned in one horizontal row, drag/scroll to see the rest */}
+        <div
+          ref={scrollRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          onClickCapture={handleClickCapture}
+          className={`flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-1 -mx-4 px-4 sm:-mx-6 sm:px-6 max-w-7xl mx-auto cursor-grab active:cursor-grabbing transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        >
           {ministries.map((ministry) => {
             const Icon = iconMap[ministry.icon || 'Users'] || Users;
 
@@ -59,7 +106,7 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
               <Link
                 key={ministry.id}
                 to={`/ministerios/${ministry.slug}`}
-                className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]"
+                className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] aspect-[3/4] snap-start overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]"
               >
                 {/* Full-bleed media: the image covers the whole portrait rectangle */}
                 {ministry.image_url ? (
