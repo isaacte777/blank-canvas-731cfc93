@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 
 interface WhatsAppButtonProps {
   phoneNumber?: string;
+  /** Extra classes (e.g. to offset the fixed position inside the admin preview) */
+  className?: string;
 }
 
-export const WhatsAppButton = ({ phoneNumber = "" }: WhatsAppButtonProps) => {
+export const WhatsAppButton = ({ phoneNumber = "", className = "" }: WhatsAppButtonProps) => {
   const defaultMessage = "Hola, me gustaría obtener más información sobre la iglesia.";
   const [isVisible, setIsVisible] = useState(false);
   
@@ -50,7 +52,7 @@ export const WhatsAppButton = ({ phoneNumber = "" }: WhatsAppButtonProps) => {
   return (
     <button
       onClick={handleClick}
-      className={`fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 w-14 h-14 md:w-16 md:h-16 bg-[#25D366] hover:bg-[#20BA5A] rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+      className={`fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 w-14 h-14 md:w-16 md:h-16 bg-[#25D366] hover:bg-[#20BA5A] rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${className} ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
       aria-label="Contactar por WhatsApp"

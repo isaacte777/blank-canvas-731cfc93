@@ -232,11 +232,11 @@ export const NavigationPreview = ({
       }}
     >
       {/* Extra top padding when embedded to account for iPhone notch/camera module */}
-      <div className={`w-full px-2 sm:px-3 md:px-4 lg:px-6 ${embedded ? "pt-6 pb-2" : "py-2 sm:py-3 md:py-4"}`}>
+      <div className={`w-full px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 ${embedded ? "pt-6 pb-2" : "py-2 sm:py-3 md:py-4"}`}>
         <div className="flex items-center justify-between w-full min-w-0">
           {/* Logo - z-[60] to appear above mobile menu */}
           <a href="#inicio" className="flex items-center gap-1.5 sm:gap-2 shrink-0 relative z-[60]">
-            <img src={customLogoUrl || logo} alt="CFA" className="h-8 sm:h-9 md:h-10 lg:h-11 w-auto object-contain" />
+            <img src={customLogoUrl || logo} alt="CFA" className="h-8 sm:h-9 md:h-10 lg:h-11 xl:h-12 w-auto object-contain" />
             {!embedded && (
               <span
                 className="hidden md:block text-[10px] md:text-xs lg:text-sm font-bold tracking-widest uppercase transition-colors duration-300"
@@ -249,9 +249,9 @@ export const NavigationPreview = ({
               </span>
             )}
             {/* Mobile CFA text - shows configured color when menu is open */}
-            {embedded && isMenuOpen && (
+            {isMenuOpen && (
               <span 
-                className="text-[10px] font-bold tracking-widest uppercase"
+                className={`${embedded ? "" : "md:hidden"} text-[10px] font-bold tracking-widest uppercase`}
                 style={{
                   fontFamily: 'var(--font-hero)',
                   color: 'hsl(var(--header-text))'
@@ -262,13 +262,13 @@ export const NavigationPreview = ({
 
           {/* Navigation - Hide completely when embedded (simulating mobile), otherwise visible from tablet (md) */}
           {!embedded && (
-            <div className="hidden md:flex items-center justify-center flex-1 px-2 lg:px-4">
-              <div className="flex items-center gap-2 lg:gap-4 xl:gap-6">
+            <div className="hidden md:flex items-center justify-center flex-1 px-2 lg:px-4 xl:px-6">
+              <div className="flex items-center gap-3 lg:gap-5 xl:gap-7">
                 {navItems.map((item) => (
                   <a
                     key={item.label}
                     href={item.href}
-                    className="relative text-[9px] lg:text-[10px] xl:text-xs font-bold transition-colors duration-300 tracking-wide uppercase pb-0.5 whitespace-nowrap hover:opacity-80"
+                    className="relative text-[10px] lg:text-xs xl:text-sm font-bold transition-colors duration-300 tracking-wide lg:tracking-wider uppercase pb-0.5 whitespace-nowrap hover:opacity-80"
                     style={{ 
                       fontFamily: "var(--font-hero)",
                       color: showDesktopEffects ? 'hsl(var(--header-text))' : 'white'
@@ -288,12 +288,12 @@ export const NavigationPreview = ({
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-1 sm:gap-1.5 lg:gap-2 shrink-0">
-            {/* Contacto - Only on xl+ and not embedded */}
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 xl:gap-4 shrink-0">
+            {/* Contacto - Only on lg+ and not embedded */}
             {!embedded && (
               <a
                 href="#contacto"
-                className="hidden xl:block font-bold text-[9px] xl:text-[10px] tracking-wide uppercase transition-all duration-300 whitespace-nowrap hover:opacity-80"
+                className="hidden lg:block font-bold text-[10px] xl:text-xs 2xl:text-sm tracking-wide xl:tracking-wider uppercase transition-all duration-300 whitespace-nowrap hover:opacity-80"
                 style={{ 
                   fontFamily: "var(--font-hero)",
                   color: showDesktopEffects ? 'hsl(var(--header-text))' : 'white'
@@ -307,7 +307,7 @@ export const NavigationPreview = ({
             {!embedded && !isMenuOpen && (
               <Button
                 variant="outline"
-                className="hidden sm:flex font-bold text-[8px] md:text-[9px] lg:text-[10px] tracking-wide uppercase px-2 lg:px-3 h-6 md:h-7 lg:h-8 rounded transition-all duration-300 bg-transparent whitespace-nowrap hover:opacity-80"
+                className="hidden sm:flex md:border-2 font-bold text-[9px] md:text-[10px] lg:text-xs xl:text-sm tracking-wide xl:tracking-wider uppercase px-2 md:px-3 lg:px-4 xl:px-5 h-7 md:h-8 lg:h-9 xl:h-10 rounded transition-all duration-300 bg-transparent whitespace-nowrap hover:opacity-80"
                 style={{ 
                   fontFamily: "var(--font-hero)",
                   borderColor: showDesktopEffects ? 'hsl(var(--header-border))' : 'white',
@@ -324,7 +324,7 @@ export const NavigationPreview = ({
               isEditable ? (
                 <EditableWrapper onClick={() => onEditLiveStream?.()} label="URL En Vivo" inline>
                   <Button
-                    className="bg-liveRed hover:bg-liveRed/90 text-white font-bold text-[8px] md:text-[9px] lg:text-[10px] tracking-wide uppercase px-2 sm:px-3 lg:px-4 h-6 md:h-7 lg:h-8 rounded transition-all duration-300 whitespace-nowrap"
+                    className="bg-liveRed hover:bg-liveRed/90 text-white font-bold text-[9px] md:text-[10px] lg:text-xs xl:text-sm tracking-wide xl:tracking-wider uppercase px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 h-7 md:h-8 lg:h-9 xl:h-10 rounded transition-all duration-300 whitespace-nowrap"
                     style={{ fontFamily: "var(--font-hero)" }}
                   >
                     En Vivo
@@ -332,7 +332,7 @@ export const NavigationPreview = ({
                 </EditableWrapper>
               ) : (
                 <Button
-                  className="bg-liveRed hover:bg-liveRed/90 text-white font-bold text-[8px] md:text-[9px] lg:text-[10px] tracking-wide uppercase px-2 sm:px-3 lg:px-4 h-6 md:h-7 lg:h-8 rounded transition-all duration-300 whitespace-nowrap"
+                  className="bg-liveRed hover:bg-liveRed/90 text-white font-bold text-[9px] md:text-[10px] lg:text-xs xl:text-sm tracking-wide xl:tracking-wider uppercase px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6 h-7 md:h-8 lg:h-9 xl:h-10 rounded transition-all duration-300 whitespace-nowrap"
                   style={{ fontFamily: "var(--font-hero)" }}
                   onClick={() => openExternalUrl(liveStreamUrl)}
                 >
