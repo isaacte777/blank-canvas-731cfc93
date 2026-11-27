@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import { Edit3, Plus } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,37 @@ export const Announcements = ({
   onAddAnnouncement
 }: AnnouncementsProps) => {
   const { ref, isVisible } = useScrollAnimation();
+  const bgRef = useRef<HTMLDivElement>(null);
+
+  // Distant parallax: the background moves slower than the section,
+  // giving the impression of depth (like a far-away mountain).
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const section = ref.current;
+      const bg = bgRef.current;
+      if (!section || !bg) return;
+      const rect = section.getBoundingClientRect();
+      if (rect.bottom < -300 || rect.top > window.innerHeight + 300) return;
+      const raw = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+      const progress = Math.min(1, Math.max(0, raw));
+      const offset = (progress - 0.5) * 18;
+      bg.style.transform = `translate3d(0, ${offset.toFixed(2)}%, 0)`;
+    };
+    const requestUpdate = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate, { passive: true });
+    update();
+    return () => {
+      window.removeEventListener('scroll', requestUpdate);
+      window.removeEventListener('resize', requestUpdate);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [ref]);
 
   // Default announcements if no data
   const defaultAnnouncements: Announcement[] = [
@@ -67,16 +98,33 @@ export const Announcements = ({
     ? propAnnouncements 
     : defaultAnnouncements;
 
+  // Grid columns adapt to the number of announcements so they always look centered
+  const gridClass = announcements.length === 1
+    ? 'grid-cols-1 max-w-md mx-auto'
+    : announcements.length === 2
+      ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto'
+      : announcements.length === 3
+        ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto'
+        : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4';
+
   return (
     <section 
       className="relative py-16 sm:py-20 md:py-24 overflow-hidden" 
       ref={ref}
-      style={{
-        backgroundImage: 'url(https://images.unsplash.com/photo-1478147427282-58a87a120781?w=1920&q=80)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }}
     >
+      {/* Distant background layer - slow parallax + subtle continuous movement */}
+      <div 
+        ref={bgRef}
+        className="absolute inset-x-0 -top-[15%] h-[130%] will-change-transform"
+        aria-hidden="true"
+      >
+        <img
+          src="https://images.unsplash.com/photo-1478147427282-58a87a120781?w=1920&q=80"
+          alt=""
+          className="w-full h-full object-cover animate-kenburns"
+        />
+      </div>
+
       {/* Dark overlay */}
       <div className="absolute inset-0 bg-black/60" />
       
@@ -113,7 +161,7 @@ export const Announcements = ({
             <p className="text-white/70 text-lg">No hay anuncios disponibles</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+          <div className={`grid gap-4 sm:gap-5 md:gap-6 ${gridClass}`}>
             {announcements.map((announcement, index) => (
               <div 
                 key={announcement.id} 
