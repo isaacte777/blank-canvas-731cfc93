@@ -190,6 +190,8 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
             onPointerCancel={handlePointerUp}
             onScroll={handleScroll}
             onClickCapture={handleClickCapture}
+            onDragStart={(e) => e.preventDefault()}
+            onDrop={(e) => e.preventDefault()}
             className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar pb-1 select-none cursor-grab active:cursor-grabbing"
           >
             {Array.from({ length: COPIES }, (_, copyIdx) =>
