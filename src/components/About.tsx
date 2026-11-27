@@ -265,7 +265,7 @@ export const About = ({
 
             {/* Mondrian-style layout: blocks of different sizes, like the painting */}
             {galleryMode === 'mondrian' && (
-              <div className={`flex gap-1.5 sm:gap-2 md:gap-3 p-1.5 sm:p-2 bg-black/60 rounded-2xl ${galleryHeight}`}>
+              <div className={`flex gap-1.5 sm:gap-2 md:gap-3 ${galleryHeight}`}>
                 {/* Left pane - larger blocks */}
                 <div className="flex-[3] flex flex-col gap-1.5 sm:gap-2 md:gap-3 min-h-0">
                   {leftImages.map((image, index) => (
