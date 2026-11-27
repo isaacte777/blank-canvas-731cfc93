@@ -133,10 +133,10 @@ export const About = ({
         }}
       >
         {children}
-        <span className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full p-1">
+        <span className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-foreground text-background rounded-full p-1">
           <Edit3 className="w-3 h-3" />
         </span>
-        <span className="absolute inset-0 border-2 border-dashed border-primary/50 rounded opacity-0 group-hover:opacity-100 transition-opacity" />
+        <span className="absolute inset-0 border-2 border-dashed border-foreground/40 rounded opacity-0 group-hover:opacity-100 transition-opacity" />
       </span>
     );
   };
@@ -161,7 +161,7 @@ export const About = ({
             e.stopPropagation();
             onEditGalleryImage(image);
           }}
-          className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200 z-10"
+          className="absolute top-2 right-2 bg-foreground text-background rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200 z-10"
         >
           <Edit3 className="w-4 h-4" />
         </button>
@@ -255,7 +255,7 @@ export const About = ({
                       if (images[0]) onEditGalleryImage?.(images[0]);
                       else onEditImage?.();
                     }}
-                    className="absolute top-3 right-3 bg-primary text-primary-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200 z-10"
+                    className="absolute top-3 right-3 bg-foreground text-background rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200 z-10"
                   >
                     <Edit3 className="w-4 h-4" />
                   </button>

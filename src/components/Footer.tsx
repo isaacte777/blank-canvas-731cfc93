@@ -164,7 +164,7 @@ export const Footer = ({
                       <Icon className="w-4 h-4 md:w-5 md:h-5 text-muted-foreground group-hover:text-background" />
                     </a>
                     {isEditable && (
-                      <span className="absolute -top-1 -right-1 opacity-0 group-hover/social:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full p-1 z-10">
+                      <span className="absolute -top-1 -right-1 opacity-0 group-hover/social:opacity-100 transition-opacity bg-foreground text-background rounded-full p-1 z-10">
                         <Edit3 className="w-2 h-2" />
                       </span>
                     )}

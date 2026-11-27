@@ -70,9 +70,9 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
                       <Icon
-                        className="w-12 h-12 sm:w-14 sm:h-14 text-primary/70 group-hover:text-primary transition-colors duration-300"
+                        className="w-12 h-12 sm:w-14 sm:h-14 text-foreground/70 group-hover:text-foreground transition-colors duration-300"
                         strokeWidth={1.5}
                       />
                     </div>
@@ -90,7 +90,7 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
                       {ministry.description}
                     </p>
                   )}
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-primary uppercase tracking-wider mt-3 sm:mt-4">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-wider mt-3 sm:mt-4">
                     Conocer más
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>

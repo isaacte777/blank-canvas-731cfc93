@@ -41,12 +41,12 @@ export const QuoteSection = ({
                   />
                 </div>
               ) : (
-                <div className="w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 rounded-full flex items-center justify-center bg-primary/10 border-4 border-primary/30 shadow-2xl">
-                  <Quote className="w-16 h-16 sm:w-20 sm:h-20 text-primary" strokeWidth={1.5} />
+                <div className="w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 rounded-full flex items-center justify-center bg-muted border-4 border-border/60 shadow-2xl">
+                  <Quote className="w-16 h-16 sm:w-20 sm:h-20 text-foreground" strokeWidth={1.5} />
                 </div>
               )}
               {/* Decorative ring */}
-              <div className="absolute -inset-3 rounded-full border border-dashed border-primary/20 pointer-events-none" />
+              <div className="absolute -inset-3 rounded-full border border-dashed border-border/50 pointer-events-none" />
             </div>
 
             {/* Quote Text */}

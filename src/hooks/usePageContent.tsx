@@ -1,6 +1,17 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DEFAULT_ABOUT, DEFAULT_ABOUT_FIELDS, DEFAULT_CONTACT, DEFAULT_CONTACT_FIELDS } from '@/lib/contentDefaults';
+import {
+  DEFAULT_ABOUT,
+  DEFAULT_ABOUT_FIELDS,
+  DEFAULT_CONTACT,
+  DEFAULT_CONTACT_FIELDS,
+  DEFAULT_FOOTER_FIELDS,
+  DEFAULT_PRAYER_FIELDS,
+  DEFAULT_QUOTE_FIELDS,
+  DEFAULT_SERVICES,
+  DEFAULT_ANNOUNCEMENTS,
+  DEFAULT_MINISTRIES,
+} from '@/lib/contentDefaults';
 
 interface PageContent {
   id: string;
@@ -122,35 +133,22 @@ interface ContactExtraFields {
 
 export const usePageContent = () => {
   const [content, setContent] = useState<Record<string, PageContent>>({});
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<Service[]>(DEFAULT_SERVICES);
   const [events, setEvents] = useState<Event[]>([]);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>(DEFAULT_ANNOUNCEMENTS);
   const [aboutGallery, setAboutGallery] = useState<GalleryImage[]>([]);
-  const [ministries, setMinistries] = useState<Ministry[]>([]);
+  const [ministries, setMinistries] = useState<Ministry[]>(DEFAULT_MINISTRIES);
   const [footerFields, setFooterFields] = useState<FooterFields>({
-    facebookUrl: '',
-    instagramUrl: '',
-    youtubeUrl: '',
-    emailUrl: '',
-    liveStreamUrl: '',
-    whatsappNumber: ''
+    ...DEFAULT_FOOTER_FIELDS
   });
   const [brandingFields, setBrandingFields] = useState<BrandingFields>({
     logoUrl: ''
   });
   const [prayerFields, setPrayerFields] = useState<PrayerFields>({
-    title: '',
-    subtitle: '',
-    schedule: '',
-    time: '',
-    buttonText: '',
-    buttonUrl: '',
-    backgroundImage: ''
+    ...DEFAULT_PRAYER_FIELDS
   });
   const [quoteFields, setQuoteFields] = useState<QuoteFields>({
-    quote: '',
-    author: '',
-    imageUrl: ''
+    ...DEFAULT_QUOTE_FIELDS
   });
   const [aboutExtraFields, setAboutExtraFields] = useState<AboutExtraFields>({
     ...DEFAULT_ABOUT_FIELDS
@@ -196,12 +194,12 @@ export const usePageContent = () => {
           try {
             const parsed = JSON.parse(contentMap.footer.content);
             setFooterFields({
-              facebookUrl: parsed.facebookUrl || '',
-              instagramUrl: parsed.instagramUrl || '',
-              youtubeUrl: parsed.youtubeUrl || '',
-              emailUrl: parsed.emailUrl || '',
-              liveStreamUrl: parsed.liveStreamUrl || '',
-              whatsappNumber: parsed.whatsappNumber || ''
+              facebookUrl: parsed.facebookUrl || DEFAULT_FOOTER_FIELDS.facebookUrl,
+              instagramUrl: parsed.instagramUrl || DEFAULT_FOOTER_FIELDS.instagramUrl,
+              youtubeUrl: parsed.youtubeUrl || DEFAULT_FOOTER_FIELDS.youtubeUrl,
+              emailUrl: parsed.emailUrl || DEFAULT_FOOTER_FIELDS.emailUrl,
+              liveStreamUrl: parsed.liveStreamUrl || DEFAULT_FOOTER_FIELDS.liveStreamUrl,
+              whatsappNumber: parsed.whatsappNumber || DEFAULT_FOOTER_FIELDS.whatsappNumber
             });
           } catch {
             // If content is not JSON, keep default empty fields
@@ -213,13 +211,13 @@ export const usePageContent = () => {
           try {
             const parsed = contentMap.prayer.content ? JSON.parse(contentMap.prayer.content) : {};
             setPrayerFields({
-              title: contentMap.prayer.title || 'ORACIÓN',
-              subtitle: contentMap.prayer.subtitle || 'CONGREGACIONAL',
-              schedule: parsed.schedule || 'Lunes a Viernes',
-              time: parsed.time || '05:30 hs',
-              buttonText: parsed.buttonText || 'PARTICIPAR',
-              buttonUrl: parsed.buttonUrl || '#contacto',
-              backgroundImage: contentMap.prayer.image_url || ''
+              title: contentMap.prayer.title || DEFAULT_PRAYER_FIELDS.title,
+              subtitle: contentMap.prayer.subtitle || DEFAULT_PRAYER_FIELDS.subtitle,
+              schedule: parsed.schedule || DEFAULT_PRAYER_FIELDS.schedule,
+              time: parsed.time || DEFAULT_PRAYER_FIELDS.time,
+              buttonText: parsed.buttonText || DEFAULT_PRAYER_FIELDS.buttonText,
+              buttonUrl: parsed.buttonUrl || DEFAULT_PRAYER_FIELDS.buttonUrl,
+              backgroundImage: contentMap.prayer.image_url || DEFAULT_PRAYER_FIELDS.backgroundImage
             });
           } catch {
             // Keep defaults
@@ -236,9 +234,9 @@ export const usePageContent = () => {
         // Parse quote fields
         if (contentMap.quote) {
           setQuoteFields({
-            quote: contentMap.quote.title || 'Dios quiere hacer algo en tu vida pero necesita que le escuches',
-            author: contentMap.quote.subtitle || 'Pra. Bethany Abreu',
-            imageUrl: contentMap.quote.content || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=600&fit=crop&crop=face'
+            quote: contentMap.quote.title || DEFAULT_QUOTE_FIELDS.quote,
+            author: contentMap.quote.subtitle || DEFAULT_QUOTE_FIELDS.author,
+            imageUrl: contentMap.quote.content || DEFAULT_QUOTE_FIELDS.imageUrl
           });
         }
 
@@ -289,11 +287,12 @@ export const usePageContent = () => {
         }
       }
 
-      if (servicesRes.data) setServices(servicesRes.data);
+      // Si la tabla está vacía se conservan los respaldos del estado inicial
+      if (servicesRes.data?.length) setServices(servicesRes.data);
       if (eventsRes.data) setEvents(eventsRes.data);
-      if (announcementsRes.data) setAnnouncements(announcementsRes.data);
+      if (announcementsRes.data?.length) setAnnouncements(announcementsRes.data);
       if (galleryRes.data) setAboutGallery(galleryRes.data);
-      if (ministriesRes.data) setMinistries(ministriesRes.data);
+      if (ministriesRes.data?.length) setMinistries(ministriesRes.data);
     } catch (error) {
       console.error('Error fetching content:', error);
     }

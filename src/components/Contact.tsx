@@ -141,10 +141,10 @@ export const Contact = ({
         }}
       >
         {children}
-        <span className="absolute -top-1 -right-1 opacity-0 group-hover/edit:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full p-1 z-10">
+        <span className="absolute -top-1 -right-1 opacity-0 group-hover/edit:opacity-100 transition-opacity bg-foreground text-background rounded-full p-1 z-10">
           <Edit3 className="w-3 h-3" />
         </span>
-        <span className="absolute inset-0 border-2 border-dashed border-primary/50 rounded opacity-0 group-hover/edit:opacity-100 transition-opacity" />
+        <span className="absolute inset-0 border-2 border-dashed border-foreground/40 rounded opacity-0 group-hover/edit:opacity-100 transition-opacity" />
       </span>
     );
   };
@@ -356,7 +356,7 @@ export const Contact = ({
                         e.stopPropagation();
                         onEditField?.('mapUrl');
                       }}
-                      className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-1.5 sm:p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200"
+                      className="absolute top-2 right-2 bg-foreground text-background rounded-full p-1.5 sm:p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200"
                     >
                       <Edit3 className="w-3 h-3 sm:w-4 sm:h-4" />
                     </button>
