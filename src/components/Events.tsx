@@ -133,8 +133,8 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                   <div className="relative bg-gradient-to-r from-turquoise/10 to-pink/10 px-5 py-4 border-b border-border/30">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-turquoise/20 rounded-xl border border-turquoise/30 group-hover:bg-turquoise/30 transition-colors">
-                          <Calendar className="w-4 h-4 text-turquoise" />
+                        <div className="p-2">
+                          <Calendar className="w-4 h-4 text-foreground" />
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider" style={{ fontFamily: 'var(--font-hero)' }}>
@@ -221,9 +221,9 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                 </DialogHeader>
                 
                 <div className="space-y-3 md:space-y-4 mt-4 md:mt-6">
-                  <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-turquoise/10 rounded-lg border border-turquoise/30">
-                    <div className="p-2 md:p-3 bg-turquoise/20 rounded-lg">
-                      <Calendar className="w-5 h-5 md:w-6 md:h-6 text-turquoise" />
+                  <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg border border-border/60">
+                    <div className="p-2 md:p-3">
+                      <Calendar className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
                     </div>
                     <div>
                       <p className="text-xs md:text-sm text-muted-foreground font-body">Fecha</p>

@@ -23,12 +23,12 @@ export const DEFAULT_ABOUT_FIELDS = {
   value2Desc: 'Unidos como familia en Cristo',
   value3Title: 'PALABRA',
   value3Desc: 'Cimentados en las Escrituras',
-  stat1Value: '',
-  stat1Label: '',
-  stat2Value: '',
-  stat2Label: '',
-  stat3Value: '',
-  stat3Label: '',
+  stat1Value: '30+',
+  stat1Label: 'AÑOS',
+  stat2Value: '500+',
+  stat2Label: 'MIEMBROS',
+  stat3Value: '15',
+  stat3Label: 'MINISTERIOS',
 };
 
 export const DEFAULT_CONTACT = {
@@ -39,14 +39,14 @@ export const DEFAULT_CONTACT = {
 export const DEFAULT_CONTACT_CONTENT = 'Visítanos o escríbenos para más información.';
 
 export const DEFAULT_CONTACT_FIELDS = {
-  addressLabel: '',
-  addressLine1: '',
-  addressLine2: '',
-  phoneLabel: '',
-  phoneLine1: '',
-  phoneLine2: '',
+  addressLabel: 'Dirección',
+  addressLine1: 'Capitan caballero',
+  addressLine2: 'Caacupé, Paraguay',
+  phoneLabel: 'Teléfono',
+  phoneLine1: '+595 (0981) 560224',
+  phoneLine2: 'Lun - Vie: 07:00 AM - 11:00 AM',
   emailLabel: '',
   emailLine1: '',
   emailLine2: '',
-  mapUrl: '',
+  mapUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5097.6266408767715!2d-57.15050429693884!3d-25.38584574520421!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x945c336e5d4e1c9b%3A0x66e35560580b64b0!2sCFA%20CAACUPE!5e0!3m2!1ses-419!2spy!4v1768581252361!5m2!1ses-419!2spy',
 };

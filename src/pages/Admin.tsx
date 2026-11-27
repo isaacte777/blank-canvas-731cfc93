@@ -560,11 +560,21 @@ const Admin = () => {
         
         // Load hero media settings
         if (contentMap.hero) {
+          const dbVideoUrl = contentMap.hero.video_url || '';
+          const dbVideoFileUrl = contentMap.hero.video_file_url || '';
+          const dbImageUrl = contentMap.hero.image_url || '';
+          const wanted = (contentMap.hero.media_type as 'video' | 'image' | 'video_file') || '';
+          // Usa el tipo pedido solo si tiene contenido; si no, cae al video de respaldo
+          let mediaType: 'video' | 'image' | 'video_file';
+          if (wanted === 'video') mediaType = dbVideoUrl ? 'video' : defaultHeroMedia.mediaType;
+          else if (wanted === 'video_file') mediaType = dbVideoFileUrl ? 'video_file' : defaultHeroMedia.mediaType;
+          else if (wanted === 'image') mediaType = dbImageUrl ? 'image' : dbVideoUrl ? 'video' : dbVideoFileUrl ? 'video_file' : defaultHeroMedia.mediaType;
+          else mediaType = dbVideoUrl ? 'video' : dbVideoFileUrl ? 'video_file' : dbImageUrl ? 'image' : defaultHeroMedia.mediaType;
           const media: HeroMedia = {
-            mediaType: (contentMap.hero.media_type as 'video' | 'image' | 'video_file') || 'video',
-            videoUrl: contentMap.hero.video_url || defaultHeroMedia.videoUrl,
-            imageUrl: contentMap.hero.image_url || '',
-            videoFileUrl: contentMap.hero.video_file_url || '',
+            mediaType,
+            videoUrl: dbVideoUrl,
+            imageUrl: dbImageUrl,
+            videoFileUrl: dbVideoFileUrl || defaultHeroMedia.videoFileUrl,
             mobileMediaType: (contentMap.hero.mobile_media_type as 'video' | 'image' | 'video_file') || undefined,
             mobileVideoUrl: contentMap.hero.mobile_video_url || '',
             mobileImageUrl: contentMap.hero.mobile_image_url || '',

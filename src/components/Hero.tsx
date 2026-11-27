@@ -29,22 +29,23 @@ export interface HeroMedia {
 }
 
 export const defaultHeroConfig: HeroConfig = {
-  mainTitle: 'Horario de',
-  accentTitle: 'SERVICIOS',
+  mainTitle: 'bienvenidos',
+  accentTitle: 'A CFA',
   tagline1: 'CREE.',
   tagline2: 'PERTENECE.',
   tagline3: 'TRANSFORMA.',
-  saturdayLabel: 'Sabado',
-  saturdayTime: '19:00 hs',
-  sundayLabel: 'Domingo',
-  sundayTime: '10:00 y 19:00 hs'
+  saturdayLabel: 'SÁBADO',
+  saturdayTime: '20:00 HS',
+  sundayLabel: 'DOMINGO',
+  sundayTime: '10:00 Y 19:00 HS'
 };
 
 export const defaultHeroMedia: HeroMedia = {
-  mediaType: 'video',
+  mediaType: 'video_file',
   videoUrl: '',
   imageUrl: '',
-  videoFileUrl: '',
+  // Video de fondo histórico (bucket público del proyecto anterior)
+  videoFileUrl: 'https://pcubjmgstfqdfpftkvuu.supabase.co/storage/v1/object/public/videos/hero/1768572972625-qx7joa.mp4',
   mobileMediaType: undefined,
   mobileVideoUrl: '',
   mobileImageUrl: '',
@@ -132,11 +133,21 @@ export const Hero = ({ config, media }: HeroProps = {}) => {
       // Set media if not provided via props
       if (!media) {
         const dataAny = data as Record<string, unknown>;
+        const dbVideoUrl = (dataAny.video_url as string) || '';
+        const dbVideoFileUrl = (dataAny.video_file_url as string) || '';
+        const dbImageUrl = (dataAny.image_url as string) || '';
+        const wanted = (dataAny.media_type as 'video' | 'image' | 'video_file') || '';
+        // Usa el tipo pedido solo si tiene contenido; si no, cae al video de respaldo
+        let mediaType: 'video' | 'image' | 'video_file';
+        if (wanted === 'video') mediaType = dbVideoUrl ? 'video' : defaultHeroMedia.mediaType;
+        else if (wanted === 'video_file') mediaType = dbVideoFileUrl ? 'video_file' : defaultHeroMedia.mediaType;
+        else if (wanted === 'image') mediaType = dbImageUrl ? 'image' : dbVideoUrl ? 'video' : dbVideoFileUrl ? 'video_file' : defaultHeroMedia.mediaType;
+        else mediaType = dbVideoUrl ? 'video' : dbVideoFileUrl ? 'video_file' : dbImageUrl ? 'image' : defaultHeroMedia.mediaType;
         setHeroMedia({
-          mediaType: (dataAny.media_type as 'video' | 'image' | 'video_file') || 'video',
-          videoUrl: (dataAny.video_url as string) || defaultHeroMedia.videoUrl,
-          imageUrl: (dataAny.image_url as string) || '',
-          videoFileUrl: (dataAny.video_file_url as string) || '',
+          mediaType,
+          videoUrl: dbVideoUrl,
+          imageUrl: dbImageUrl,
+          videoFileUrl: dbVideoFileUrl || defaultHeroMedia.videoFileUrl,
           mobileMediaType: (dataAny.mobile_media_type as 'video' | 'image' | 'video_file') || undefined,
           mobileVideoUrl: (dataAny.mobile_video_url as string) || '',
           mobileImageUrl: (dataAny.mobile_image_url as string) || '',

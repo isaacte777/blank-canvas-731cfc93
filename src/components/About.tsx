@@ -66,11 +66,11 @@ export const About = ({
   // Galería de respaldo (imágenes sembradas en las migraciones) para que la
   // sección siempre muestre el mosaico completo aunque la base esté vacía.
   const SEED_GALLERY: GalleryImage[] = [
-    { id: "seed-1", image_url: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=600&h=600&fit=crop", alt_text: "Adoración en la iglesia", position: 0 },
-    { id: "seed-2", image_url: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&h=800&fit=crop", alt_text: "Comunidad unida", position: 1 },
-    { id: "seed-3", image_url: "https://images.unsplash.com/photo-1544427920-c49ccfb85579?w=600&h=800&fit=crop", alt_text: "Estudio bíblico", position: 2 },
-    { id: "seed-4", image_url: "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&h=600&fit=crop", alt_text: "Oración comunitaria", position: 3 },
-    { id: "seed-5", image_url: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop", alt_text: "Ministerio de jóvenes", position: 4 },
+    { id: "seed-1", image_url: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=800", alt_text: "Adoración en la iglesia", position: 0 },
+    { id: "seed-2", image_url: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=600", alt_text: "Comunidad unida", position: 1 },
+    { id: "seed-3", image_url: "https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=600", alt_text: "Estudio bíblico", position: 2 },
+    { id: "seed-4", image_url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600", alt_text: "Oración comunitaria", position: 3 },
+    { id: "seed-5", image_url: "https://pcubjmgstfqdfpftkvuu.supabase.co/storage/v1/object/public/images/images/1768847052033-4kbkxr.jpeg", alt_text: "Ministerio de jóvenes", position: 4 },
   ];
   const images = galleryImages.length > 0 ? galleryImages : SEED_GALLERY;
   const isSeedImage = (image: GalleryImage) => image.id.startsWith("seed-");
@@ -200,8 +200,8 @@ export const About = ({
                 const Icon = value.icon;
                 return (
                   <div key={index} className="flex items-center gap-3 sm:block sm:text-center">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 sm:mx-auto bg-turquoise/20 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform border border-turquoise/30">
-                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-turquoise" />
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 sm:mx-auto flex items-center justify-center transform hover:rotate-6 transition-transform">
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-foreground" />
                     </div>
                     <div className="min-w-0 sm:mt-2 md:mt-3">
                       <EditableText field={value.titleField}>
