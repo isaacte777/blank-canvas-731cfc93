@@ -1,3 +1,4 @@
+import { Quote } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
 
@@ -18,41 +19,56 @@ export const QuoteSection = ({
 }: QuoteSectionProps) => {
   const { ref, isVisible } = useScrollAnimation();
 
+  // Fallbacks so the section never renders blank
+  const displayQuote = quote || "Dios quiere hacer algo en tu vida pero necesita que le escuches";
+  const displayAuthor = author || "Pra. Bethany Abreu";
+
   const content = (
     <section 
       ref={ref}
-      className="py-16 sm:py-20 md:py-24 lg:py-32 bg-white shadow-xl relative z-10"
+      className="relative py-16 sm:py-20 md:py-24 bg-gradient-to-b from-background via-muted/40 to-background border-y border-border/40 overflow-hidden"
     >
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 lg:gap-20 max-w-5xl mx-auto">
-            {/* Circular Image */}
-            <div className="shrink-0">
-              <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 lg:w-80 lg:h-80 rounded-full overflow-hidden shadow-2xl border-4 border-white">
-                <img 
-                  src={imageUrl} 
-                  alt={author}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+          <div className={`flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 lg:gap-16 max-w-5xl mx-auto transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+            {/* Circular Image / Placeholder */}
+            <div className="shrink-0 relative">
+              {imageUrl ? (
+                <div className="w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 rounded-full overflow-hidden shadow-2xl border-4 border-primary/30">
+                  <img 
+                    src={imageUrl} 
+                    alt={displayAuthor}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 lg:w-72 lg:h-72 rounded-full flex items-center justify-center bg-primary/10 border-4 border-primary/30 shadow-2xl">
+                  <Quote className="w-16 h-16 sm:w-20 sm:h-20 text-primary" strokeWidth={1.5} />
+                </div>
+              )}
+              {/* Decorative ring */}
+              <div className="absolute -inset-3 rounded-full border border-dashed border-primary/20 pointer-events-none" />
             </div>
 
             {/* Quote Text */}
             <div className="text-center md:text-left max-w-xl">
               <blockquote 
-                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-gray-800 leading-relaxed mb-4 md:mb-6"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-foreground leading-relaxed mb-4 md:mb-6"
                 style={{ 
                   fontFamily: "'Dancing Script', 'Brush Script MT', cursive",
                   fontStyle: 'italic'
                 }}
               >
-                "{quote}".
+                &ldquo;{displayQuote}&rdquo;
               </blockquote>
-              <cite 
-                className="text-base sm:text-lg md:text-xl text-gray-600 not-italic"
-                style={{ fontFamily: 'var(--font-body)' }}
-              >
-                {author}
-              </cite>
+              <div className="flex items-center gap-3 justify-center md:justify-start">
+                <span className="w-10 h-px bg-primary/60 shrink-0" aria-hidden="true" />
+                <cite 
+                  className="text-base sm:text-lg md:text-xl text-muted-foreground not-italic"
+                  style={{ fontFamily: 'var(--font-body)' }}
+                >
+                  {displayAuthor}
+                </cite>
+              </div>
             </div>
           </div>
         </div>

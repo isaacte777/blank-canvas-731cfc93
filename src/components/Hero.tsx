@@ -303,7 +303,7 @@ export const Hero = ({ config, media }: HeroProps = {}) => {
         {(currentMediaType === 'video' || currentMediaType === 'video_file') && (
           <button
             onClick={toggleMute}
-            className="absolute top-16 sm:top-20 right-2 sm:right-6 z-50 p-2 sm:p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300 backdrop-blur-sm border border-white/20 cursor-pointer"
+            className="absolute bottom-5 left-4 sm:bottom-6 sm:left-6 z-50 p-2 sm:p-3 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300 backdrop-blur-sm border border-white/20 cursor-pointer"
             aria-label={isMuted ? "Activar sonido" : "Silenciar"}
           >
             {isMuted ? (
@@ -334,20 +334,41 @@ export const Hero = ({ config, media }: HeroProps = {}) => {
             </h2>
           </div>
 
-          {/* Service schedule - Clean minimal design */}
-          <div className="space-y-2 sm:space-y-3 animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <p 
-              className="text-lg sm:text-xl md:text-2xl text-white/90 tracking-wide"
+          {/* Taglines - staggered reveal */}
+          {(heroConfig.tagline1 || heroConfig.tagline2 || heroConfig.tagline3) && (
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:gap-x-6 md:gap-x-8">
+              {[
+                { text: heroConfig.tagline1, className: 'animate-hero-tagline-1' },
+                { text: heroConfig.tagline2, className: 'animate-hero-tagline-2' },
+                { text: heroConfig.tagline3, className: 'animate-hero-tagline-3' },
+              ].map((tagline, index) =>
+                tagline.text ? (
+                  <span
+                    key={index}
+                    className={`text-xs sm:text-sm md:text-base lg:text-lg font-bold tracking-[0.25em] sm:tracking-[0.35em] text-white/85 uppercase ${tagline.className}`}
+                    style={{ fontFamily: 'var(--font-hero)' }}
+                  >
+                    {tagline.text}
+                  </span>
+                ) : null
+              )}
+            </div>
+          )}
+
+          {/* Service schedule - two ordered pills */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-4 animate-hero-schedule">
+            <span
+              className="inline-flex items-center justify-center px-5 sm:px-6 py-2 sm:py-2.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-base sm:text-lg md:text-xl text-white/95 tracking-wide"
               style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic' }}
             >
               {heroConfig.saturdayLabel} {heroConfig.saturdayTime}
-            </p>
-            <p 
-              className="text-lg sm:text-xl md:text-2xl text-white/90 tracking-wide"
+            </span>
+            <span
+              className="inline-flex items-center justify-center px-5 sm:px-6 py-2 sm:py-2.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm text-base sm:text-lg md:text-xl text-white/95 tracking-wide"
               style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic' }}
             >
               {heroConfig.sundayLabel} {heroConfig.sundayTime}
-            </p>
+            </span>
           </div>
         </div>
       </div>

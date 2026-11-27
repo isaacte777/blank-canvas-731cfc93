@@ -152,15 +152,16 @@ export const Services = ({ services: propServices, onEditService, isEditable = f
 
   return (
     <>
-      <section className="py-10 sm:py-12 md:py-20 lg:py-24 bg-muted/30" ref={ref}>
-        <div className="container mx-auto px-3 sm:px-4 md:px-6">
+      <section className="py-16 sm:py-20 md:py-24 bg-background" ref={ref}>
+        <div className="container mx-auto px-4 sm:px-6">
           {/* Header consistente con About section */}
           <div className="text-center mb-8 sm:mb-10 md:mb-14">
-            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display text-foreground tracking-wide uppercase font-bold">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground tracking-wide uppercase font-bold">
               Nuestros{' '}
               <span className="text-primary">Servicios</span>
             </h2>
-            <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground mt-3 sm:mt-4 max-w-2xl mx-auto">
+            <div className="w-16 h-1 bg-primary mx-auto mt-3 sm:mt-4 rounded-full" />
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-3 sm:mt-4 max-w-2xl mx-auto">
               Te invitamos a ser parte de nuestra comunidad de fe
             </p>
           </div>

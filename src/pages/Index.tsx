@@ -46,7 +46,7 @@ const Index = () => {
         <div id="inicio">
           <Hero />
         </div>
-        <div id="oracion">
+        <div id="oracion" className="scroll-mt-16 md:scroll-mt-20">
           <PrayerBanner 
             title={prayerFields.title}
             subtitle={prayerFields.subtitle}
@@ -57,20 +57,20 @@ const Index = () => {
             backgroundImage={prayerFields.backgroundImage}
           />
         </div>
-        <div id="anuncios">
+        <div id="anuncios" className="scroll-mt-16 md:scroll-mt-20">
           <Announcements announcements={announcements} />
         </div>
-        <div id="cita">
+        <div id="cita" className="scroll-mt-16 md:scroll-mt-20">
           <QuoteSection 
             quote={quoteFields.quote}
             author={quoteFields.author}
             imageUrl={quoteFields.imageUrl}
           />
         </div>
-        <div id="servicios" className="relative z-40 bg-background">
+        <div id="servicios" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
           <Services services={services} />
         </div>
-        <div id="nosotros" className="relative z-40 bg-background">
+        <div id="nosotros" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
           <About 
             title={content.about?.title}
             subtitle={content.about?.subtitle}
@@ -92,10 +92,10 @@ const Index = () => {
             stat3Label={aboutExtraFields.stat3Label}
           />
         </div>
-        <div id="ministerios" className="relative z-40 bg-background">
+        <div id="ministerios" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
           <Ministries ministries={ministries} />
         </div>
-        <div id="contacto" className="relative z-40 bg-background">
+        <div id="contacto" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
           <Contact 
             title={content.contact?.title}
             subtitle={content.contact?.subtitle}
