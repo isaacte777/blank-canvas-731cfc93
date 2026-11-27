@@ -205,7 +205,9 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
                     to={`/ministerios/${ministry.slug}`}
                     aria-hidden={!isMiddle}
                     tabIndex={isMiddle ? undefined : -1}
-                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]"
+                    draggable={false}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500"
                   >
                     {/* Full-bleed media: the image covers the whole portrait rectangle */}
                     {ministry.image_url ? (
