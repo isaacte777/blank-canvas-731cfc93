@@ -173,9 +173,9 @@ export const About = ({
     <section className="py-12 sm:py-16 md:py-20 bg-muted/30" ref={ref}>
       <div className="container mx-auto px-4 sm:px-6">
         {/* Main content grid */}
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-8 md:gap-12 lg:gap-16 items-start max-w-7xl mx-auto">
           {/* Left side - Text content */}
-          <div className={`space-y-4 sm:space-y-6 md:space-y-8 ${isVisible ? 'animate-slide-left-wow' : 'opacity-0'}`}>
+          <div className={`space-y-5 sm:space-y-6 md:space-y-8 ${isVisible ? 'animate-slide-left-wow' : 'opacity-0'}`}>
             <div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground tracking-wide">
                 <EditableText field="title">{displayTitle}</EditableText>{' '}
@@ -194,25 +194,27 @@ export const About = ({
               </p>
             </EditableText>
 
-            {/* Values */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6 pt-3 sm:pt-4 md:pt-6">
+            {/* Values — en móvil: filas icono + texto; desde sm:3 columnas centradas */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3 md:gap-4 lg:gap-6 pt-2 sm:pt-3 md:pt-4">
               {values.map((value, index) => {
                 const Icon = value.icon;
                 return (
-                  <div key={index} className="text-center space-y-1.5 sm:space-y-2 md:space-y-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 mx-auto bg-turquoise/20 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform border border-turquoise/30">
+                  <div key={index} className="flex items-center gap-3 sm:block sm:text-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 sm:mx-auto bg-turquoise/20 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform border border-turquoise/30">
                       <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-turquoise" />
                     </div>
-                    <EditableText field={value.titleField}>
-                      <div className="font-heading text-foreground uppercase text-[10px] sm:text-xs md:text-sm lg:text-base tracking-wider">
-                        {value.title}
-                      </div>
-                    </EditableText>
-                    <EditableText field={value.descField}>
-                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-body hidden sm:block leading-snug">
-                        {value.description}
-                      </div>
-                    </EditableText>
+                    <div className="min-w-0 sm:mt-2 md:mt-3">
+                      <EditableText field={value.titleField}>
+                        <div className="font-heading text-foreground uppercase text-[11px] sm:text-xs md:text-sm lg:text-base tracking-wider text-left sm:text-center">
+                          {value.title}
+                        </div>
+                      </EditableText>
+                      <EditableText field={value.descField}>
+                        <div className="text-[11px] sm:text-xs md:text-sm text-muted-foreground font-body leading-snug text-left sm:text-center mt-0.5">
+                          {value.description}
+                        </div>
+                      </EditableText>
+                    </div>
                   </div>
                 );
               })}
@@ -220,14 +222,14 @@ export const About = ({
 
             {/* Stats (ocultos si no hay valores cargados) */}
             {hasStats && (
-              <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6 pt-3 sm:pt-4 md:pt-6 border-t border-turquoise/30">
+              <div className="grid grid-cols-3 gap-3 sm:gap-3 md:gap-4 lg:gap-6 pt-4 sm:pt-5 md:pt-6 border-t border-turquoise/30">
                 {stats.map((stat, index) => (
                   <div key={index} className="text-center">
                     <EditableText field={stat.valueField}>
                       <div className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading ${stat.color} mb-0.5 sm:mb-1 md:mb-2`}>{stat.value}</div>
                     </EditableText>
                     <EditableText field={stat.labelField}>
-                      <div className="text-[9px] sm:text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-body">{stat.label}</div>
+                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-body">{stat.label}</div>
                     </EditableText>
                   </div>
                 ))}
