@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
 
 export interface Ministry {
@@ -93,16 +93,6 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
     }
   };
 
-  // Arrow buttons: advance exactly one module (card + gap)
-  const scrollByCards = (dir: 1 | -1) => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const first = el.firstElementChild as HTMLElement | null;
-    const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
-    const step = (first?.offsetWidth ?? 320) + gap;
-    el.scrollBy({ left: dir * step, behavior: 'smooth' });
-  };
-
   // Don't render if no ministries
   if (!ministries || ministries.length === 0) {
     return null;
@@ -140,13 +130,14 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
                 <Link
                   key={ministry.id}
                   to={`/ministerios/${ministry.slug}`}
-                  className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] aspect-[3/4] snap-start overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]"
+                  className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] aspect-[9/16] snap-start overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]"
                 >
                   {/* Full-bleed media: the image covers the whole portrait rectangle */}
                   {ministry.image_url ? (
                     <img
                       src={ministry.image_url}
                       alt={ministry.title}
+                      draggable={false}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                   ) : (
@@ -175,24 +166,6 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
               );
             })}
           </div>
-
-          {/* Sharp neutral arrows to move one module at a time (desktop) */}
-          <button
-            type="button"
-            aria-label="Módulo anterior"
-            onClick={() => scrollByCards(-1)}
-            className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 h-11 w-11 items-center justify-center rounded-none border border-border/60 bg-background/95 text-foreground shadow-md transition-all duration-300 hover:bg-muted"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            aria-label="Módulo siguiente"
-            onClick={() => scrollByCards(1)}
-            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 h-11 w-11 items-center justify-center rounded-none border border-border/60 bg-background/95 text-foreground shadow-md transition-all duration-300 hover:bg-muted"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
         </div>
       </div>
     </section>
