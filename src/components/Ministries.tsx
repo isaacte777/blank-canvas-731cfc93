@@ -209,7 +209,7 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
             onClickCapture={handleClickCapture}
             onDragStart={(e) => e.preventDefault()}
             onDrop={(e) => e.preventDefault()}
-            className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar pb-1 select-none cursor-grab active:cursor-grabbing"
+            className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar pt-1 pb-1 select-none cursor-grab active:cursor-grabbing"
           >
             {Array.from({ length: COPIES }, (_, copyIdx) =>
               ministries.map((ministry) => {
@@ -224,7 +224,7 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
                     tabIndex={isMiddle ? undefined : -1}
                     draggable={false}
                     onDragStart={(e) => e.preventDefault()}
-                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500"
+                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 focus:outline-none focus-visible:outline-none"
                   >
                     {/* Full-bleed media: the image covers the whole portrait rectangle */}
                     {ministry.image_url ? (
