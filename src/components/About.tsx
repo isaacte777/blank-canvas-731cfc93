@@ -1,5 +1,6 @@
 import communityImageDefault from "@/assets/community.jpg";
 import { Heart, Users, Book, Edit3 } from "lucide-react";
+import { DEFAULT_ABOUT, DEFAULT_ABOUT_FIELDS } from "@/lib/contentDefaults";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 
 export interface GalleryImage {
@@ -62,8 +63,24 @@ export const About = ({
   const { ref, isVisible } = useScrollAnimation();
   const communityImage = image_url || communityImageDefault;
   
-  // No default gallery images - only show what's in the database
-  const images = galleryImages.length > 0 ? galleryImages : [];
+  // Galería de respaldo (imágenes sembradas en las migraciones) para que la
+  // sección siempre muestre el mosaico completo aunque la base esté vacía.
+  const SEED_GALLERY: GalleryImage[] = [
+    { id: "seed-1", image_url: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=600&h=600&fit=crop", alt_text: "Adoración en la iglesia", position: 0 },
+    { id: "seed-2", image_url: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&h=800&fit=crop", alt_text: "Comunidad unida", position: 1 },
+    { id: "seed-3", image_url: "https://images.unsplash.com/photo-1544427920-c49ccfb85579?w=600&h=800&fit=crop", alt_text: "Estudio bíblico", position: 2 },
+    { id: "seed-4", image_url: "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&h=600&fit=crop", alt_text: "Oración comunitaria", position: 3 },
+    { id: "seed-5", image_url: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=800&h=600&fit=crop", alt_text: "Ministerio de jóvenes", position: 4 },
+  ];
+  const images = galleryImages.length > 0 ? galleryImages : SEED_GALLERY;
+  const isSeedImage = (image: GalleryImage) => image.id.startsWith("seed-");
+
+  // Fallbacks: si la base no tiene valores, mostramos la información histórica
+  const displayTitle = title || DEFAULT_ABOUT.title;
+  const displaySubtitle = subtitle || DEFAULT_ABOUT.subtitle;
+  const displayContent = content || DEFAULT_ABOUT_FIELDS.firstParagraph;
+  const displaySecond = secondParagraph || DEFAULT_ABOUT_FIELDS.secondParagraph;
+  const hasStats = Boolean(stat1Value || stat2Value || stat3Value);
 
   // Gallery layout: single featured image (0–1), Mondrian-style varied blocks (2+)
   const galleryMode = images.length <= 1 ? 'single' : 'mondrian';
@@ -78,22 +95,22 @@ export const About = ({
   const values = [
     {
       icon: Heart,
-      title: value1Title || "",
-      description: value1Desc || "",
+      title: value1Title || DEFAULT_ABOUT_FIELDS.value1Title,
+      description: value1Desc || DEFAULT_ABOUT_FIELDS.value1Desc,
       titleField: 'value1Title' as const,
       descField: 'value1Desc' as const
     },
     {
       icon: Users,
-      title: value2Title || "",
-      description: value2Desc || "",
+      title: value2Title || DEFAULT_ABOUT_FIELDS.value2Title,
+      description: value2Desc || DEFAULT_ABOUT_FIELDS.value2Desc,
       titleField: 'value2Title' as const,
       descField: 'value2Desc' as const
     },
     {
       icon: Book,
-      title: value3Title || "",
-      description: value3Desc || "",
+      title: value3Title || DEFAULT_ABOUT_FIELDS.value3Title,
+      description: value3Desc || DEFAULT_ABOUT_FIELDS.value3Desc,
       titleField: 'value3Title' as const,
       descField: 'value3Desc' as const
     }
@@ -137,8 +154,8 @@ export const About = ({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
-      {/* Edit button for gallery images */}
-      {isEditable && onEditGalleryImage && (
+      {/* Edit button for gallery images (hidden on fallback seed images) */}
+      {isEditable && onEditGalleryImage && !isSeedImage(image) && (
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -156,64 +173,68 @@ export const About = ({
     <section className="py-12 sm:py-16 md:py-20 bg-muted/30" ref={ref}>
       <div className="container mx-auto px-4 sm:px-6">
         {/* Main content grid */}
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-8 md:gap-12 lg:gap-16 items-start max-w-7xl mx-auto">
           {/* Left side - Text content */}
-          <div className={`space-y-4 sm:space-y-6 md:space-y-8 ${isVisible ? 'animate-slide-left-wow' : 'opacity-0'}`}>
+          <div className={`space-y-5 sm:space-y-6 md:space-y-8 ${isVisible ? 'animate-slide-left-wow' : 'opacity-0'}`}>
             <div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground tracking-wide">
-                <EditableText field="title">{title || ''}</EditableText>{' '}
-                <EditableText field="subtitle"><span className="text-purple">{subtitle || ''}</span></EditableText>
+                <EditableText field="title">{displayTitle}</EditableText>{' '}
+                <EditableText field="subtitle"><span className="text-purple">{displaySubtitle}</span></EditableText>
               </h2>
               <div className="w-16 h-1 bg-purple rounded-full mt-2 sm:mt-3" />
             </div>
             <EditableText field="content">
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed font-body">
-                {content || ''}
+                {displayContent}
               </p>
             </EditableText>
             <EditableText field="secondParagraph">
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed font-body">
-                {secondParagraph || ''}
+                {displaySecond}
               </p>
             </EditableText>
 
-            {/* Values */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6 pt-3 sm:pt-4 md:pt-6">
+            {/* Values — en móvil: filas icono + texto; desde sm:3 columnas centradas */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3 md:gap-4 lg:gap-6 pt-2 sm:pt-3 md:pt-4">
               {values.map((value, index) => {
                 const Icon = value.icon;
                 return (
-                  <div key={index} className="text-center space-y-1.5 sm:space-y-2 md:space-y-3">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 mx-auto bg-turquoise/20 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform border border-turquoise/30">
+                  <div key={index} className="flex items-center gap-3 sm:block sm:text-center">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 shrink-0 sm:mx-auto bg-turquoise/20 rounded-lg sm:rounded-xl md:rounded-2xl flex items-center justify-center transform hover:rotate-6 transition-transform border border-turquoise/30">
                       <Icon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-turquoise" />
                     </div>
-                    <EditableText field={value.titleField}>
-                      <div className="font-heading text-foreground uppercase text-[10px] sm:text-xs md:text-sm lg:text-base tracking-wider">
-                        {value.title}
-                      </div>
-                    </EditableText>
-                    <EditableText field={value.descField}>
-                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-body hidden sm:block leading-snug">
-                        {value.description}
-                      </div>
-                    </EditableText>
+                    <div className="min-w-0 sm:mt-2 md:mt-3">
+                      <EditableText field={value.titleField}>
+                        <div className="font-heading text-foreground uppercase text-[11px] sm:text-xs md:text-sm lg:text-base tracking-wider text-left sm:text-center">
+                          {value.title}
+                        </div>
+                      </EditableText>
+                      <EditableText field={value.descField}>
+                        <div className="text-[11px] sm:text-xs md:text-sm text-muted-foreground font-body leading-snug text-left sm:text-center mt-0.5">
+                          {value.description}
+                        </div>
+                      </EditableText>
+                    </div>
                   </div>
                 );
               })}
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4 lg:gap-6 pt-3 sm:pt-4 md:pt-6 border-t border-turquoise/30">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <EditableText field={stat.valueField}>
-                    <div className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading ${stat.color} mb-0.5 sm:mb-1 md:mb-2`}>{stat.value}</div>
-                  </EditableText>
-                  <EditableText field={stat.labelField}>
-                    <div className="text-[9px] sm:text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-body">{stat.label}</div>
-                  </EditableText>
-                </div>
-              ))}
-            </div>
+            {/* Stats (ocultos si no hay valores cargados) */}
+            {hasStats && (
+              <div className="grid grid-cols-3 gap-3 sm:gap-3 md:gap-4 lg:gap-6 pt-4 sm:pt-5 md:pt-6 border-t border-turquoise/30">
+                {stats.map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <EditableText field={stat.valueField}>
+                      <div className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading ${stat.color} mb-0.5 sm:mb-1 md:mb-2`}>{stat.value}</div>
+                    </EditableText>
+                    <EditableText field={stat.labelField}>
+                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-body">{stat.label}</div>
+                    </EditableText>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Right side - Image Gallery */}

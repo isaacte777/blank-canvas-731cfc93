@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { DEFAULT_ABOUT, DEFAULT_ABOUT_FIELDS, DEFAULT_CONTACT, DEFAULT_CONTACT_FIELDS } from '@/lib/contentDefaults';
 
 interface PageContent {
   id: string;
@@ -152,32 +153,10 @@ export const usePageContent = () => {
     imageUrl: ''
   });
   const [aboutExtraFields, setAboutExtraFields] = useState<AboutExtraFields>({
-    firstParagraph: '',
-    secondParagraph: '',
-    value1Title: '',
-    value1Desc: '',
-    value2Title: '',
-    value2Desc: '',
-    value3Title: '',
-    value3Desc: '',
-    stat1Value: '',
-    stat1Label: '',
-    stat2Value: '',
-    stat2Label: '',
-    stat3Value: '',
-    stat3Label: ''
+    ...DEFAULT_ABOUT_FIELDS
   });
   const [contactExtraFields, setContactExtraFields] = useState<ContactExtraFields>({
-    addressLabel: '',
-    addressLine1: '',
-    addressLine2: '',
-    phoneLabel: '',
-    phoneLine1: '',
-    phoneLine2: '',
-    emailLabel: '',
-    emailLine1: '',
-    emailLine2: '',
-    mapUrl: ''
+    ...DEFAULT_CONTACT_FIELDS
   });
   const [loading, setLoading] = useState(true);
 
@@ -201,6 +180,15 @@ export const usePageContent = () => {
         contentRes.data.forEach((item) => {
           contentMap[item.section] = item;
         });
+        // Restaurar títulos principales si la base no los tiene guardados
+        if (contentMap.about) {
+          contentMap.about.title = contentMap.about.title || DEFAULT_ABOUT.title;
+          contentMap.about.subtitle = contentMap.about.subtitle || DEFAULT_ABOUT.subtitle;
+        }
+        if (contentMap.contact) {
+          contentMap.contact.title = contentMap.contact.title || DEFAULT_CONTACT.title;
+          contentMap.contact.subtitle = contentMap.contact.subtitle || DEFAULT_CONTACT.subtitle;
+        }
         setContent(contentMap);
         
         // Parse footer fields from JSON
@@ -259,20 +247,20 @@ export const usePageContent = () => {
           try {
             const parsed = JSON.parse(contentMap.about.content);
             setAboutExtraFields({
-              firstParagraph: parsed.firstParagraph || '',
-              secondParagraph: parsed.secondParagraph || '',
-              value1Title: parsed.value1Title || '',
-              value1Desc: parsed.value1Desc || '',
-              value2Title: parsed.value2Title || '',
-              value2Desc: parsed.value2Desc || '',
-              value3Title: parsed.value3Title || '',
-              value3Desc: parsed.value3Desc || '',
-              stat1Value: parsed.stat1Value || '',
-              stat1Label: parsed.stat1Label || '',
-              stat2Value: parsed.stat2Value || '',
-              stat2Label: parsed.stat2Label || '',
-              stat3Value: parsed.stat3Value || '',
-              stat3Label: parsed.stat3Label || ''
+              firstParagraph: parsed.firstParagraph || DEFAULT_ABOUT_FIELDS.firstParagraph,
+              secondParagraph: parsed.secondParagraph || DEFAULT_ABOUT_FIELDS.secondParagraph,
+              value1Title: parsed.value1Title || DEFAULT_ABOUT_FIELDS.value1Title,
+              value1Desc: parsed.value1Desc || DEFAULT_ABOUT_FIELDS.value1Desc,
+              value2Title: parsed.value2Title || DEFAULT_ABOUT_FIELDS.value2Title,
+              value2Desc: parsed.value2Desc || DEFAULT_ABOUT_FIELDS.value2Desc,
+              value3Title: parsed.value3Title || DEFAULT_ABOUT_FIELDS.value3Title,
+              value3Desc: parsed.value3Desc || DEFAULT_ABOUT_FIELDS.value3Desc,
+              stat1Value: parsed.stat1Value || DEFAULT_ABOUT_FIELDS.stat1Value,
+              stat1Label: parsed.stat1Label || DEFAULT_ABOUT_FIELDS.stat1Label,
+              stat2Value: parsed.stat2Value || DEFAULT_ABOUT_FIELDS.stat2Value,
+              stat2Label: parsed.stat2Label || DEFAULT_ABOUT_FIELDS.stat2Label,
+              stat3Value: parsed.stat3Value || DEFAULT_ABOUT_FIELDS.stat3Value,
+              stat3Label: parsed.stat3Label || DEFAULT_ABOUT_FIELDS.stat3Label
             });
           } catch {
             // Keep defaults
@@ -284,16 +272,16 @@ export const usePageContent = () => {
           try {
             const parsed = JSON.parse(contentMap.contact.content);
             setContactExtraFields({
-              addressLabel: parsed.addressLabel || '',
-              addressLine1: parsed.addressLine1 || '',
-              addressLine2: parsed.addressLine2 || '',
-              phoneLabel: parsed.phoneLabel || '',
-              phoneLine1: parsed.phoneLine1 || '',
-              phoneLine2: parsed.phoneLine2 || '',
-              emailLabel: parsed.emailLabel || '',
-              emailLine1: parsed.emailLine1 || '',
-              emailLine2: parsed.emailLine2 || '',
-              mapUrl: parsed.mapUrl || ''
+              addressLabel: parsed.addressLabel || DEFAULT_CONTACT_FIELDS.addressLabel,
+              addressLine1: parsed.addressLine1 || DEFAULT_CONTACT_FIELDS.addressLine1,
+              addressLine2: parsed.addressLine2 || DEFAULT_CONTACT_FIELDS.addressLine2,
+              phoneLabel: parsed.phoneLabel || DEFAULT_CONTACT_FIELDS.phoneLabel,
+              phoneLine1: parsed.phoneLine1 || DEFAULT_CONTACT_FIELDS.phoneLine1,
+              phoneLine2: parsed.phoneLine2 || DEFAULT_CONTACT_FIELDS.phoneLine2,
+              emailLabel: parsed.emailLabel || DEFAULT_CONTACT_FIELDS.emailLabel,
+              emailLine1: parsed.emailLine1 || DEFAULT_CONTACT_FIELDS.emailLine1,
+              emailLine2: parsed.emailLine2 || DEFAULT_CONTACT_FIELDS.emailLine2,
+              mapUrl: parsed.mapUrl || DEFAULT_CONTACT_FIELDS.mapUrl
             });
           } catch {
             // Keep defaults

@@ -667,3 +667,33 @@ All colors MUST be HSL.
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
+
+/* ── Ventanas de edición (dialogs): estilo moderno y sobrio ──
+   Se aplica solo al interior de los diálogos del panel de administración
+   para que los colores llamativos (turquesa/primario) queden neutros. */
+[role="dialog"] .bg-primary {
+  background-color: hsl(var(--foreground)) !important;
+  color: hsl(var(--background)) !important;
+}
+[role="dialog"] .hover\:bg-primary\/90:hover,
+[role="dialog"] .hover\:bg-primary\/80:hover {
+  background-color: hsl(var(--foreground) / 0.88) !important;
+}
+[role="dialog"] .bg-primary\/10 {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+[role="dialog"] .border-input {
+  border-color: hsl(var(--border)) !important;
+}
+[role="dialog"] .hover\:bg-accent:hover {
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+[role="dialog"] .text-primary,
+[role="dialog"] .text-turquoise {
+  color: hsl(var(--muted-foreground)) !important;
+}
+[role="dialog"] .ring-ring {
+  --tw-ring-color: hsl(0 0% 100% / 0.12) !important;
+}
