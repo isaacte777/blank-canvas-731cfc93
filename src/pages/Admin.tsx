@@ -12,7 +12,18 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { ManageAdminsDialog } from '@/components/ManageAdminsDialog';
 import { useIdleTimeout } from '@/hooks/useIdleTimeout';
 import { useAdminPresence } from '@/hooks/useAdminPresence';
-import { DEFAULT_ABOUT, DEFAULT_ABOUT_FIELDS, DEFAULT_CONTACT, DEFAULT_CONTACT_FIELDS } from '@/lib/contentDefaults';
+import {
+  DEFAULT_ABOUT,
+  DEFAULT_ABOUT_FIELDS,
+  DEFAULT_CONTACT,
+  DEFAULT_CONTACT_FIELDS,
+  DEFAULT_FOOTER_FIELDS,
+  DEFAULT_PRAYER_FIELDS,
+  DEFAULT_QUOTE_FIELDS,
+  DEFAULT_SERVICES,
+  DEFAULT_ANNOUNCEMENTS,
+  DEFAULT_MINISTRIES,
+} from '@/lib/contentDefaults';
 import { 
   Loader2, 
   LogOut, 
@@ -342,12 +353,7 @@ const Admin = () => {
   const [editingFooterField, setEditingFooterField] = useState<string | null>(null);
   const [footerFieldValue, setFooterFieldValue] = useState('');
   const [footerFields, setFooterFields] = useState({
-    facebookUrl: '',
-    instagramUrl: '',
-    youtubeUrl: '',
-    emailUrl: '',
-    liveStreamUrl: '',
-    whatsappNumber: ''
+    ...DEFAULT_FOOTER_FIELDS
   });
 
   // Branding (logo) editing
@@ -360,13 +366,7 @@ const Admin = () => {
   // Prayer Banner editing
   const [showPrayerEditor, setShowPrayerEditor] = useState(false);
   const [prayerFields, setPrayerFields] = useState({
-    title: 'ORACIÓN',
-    subtitle: 'CONGREGACIONAL',
-    schedule: 'Lunes a Viernes',
-    time: '05:30 hs',
-    buttonText: 'PARTICIPAR',
-    buttonUrl: '#contacto',
-    backgroundImage: ''
+    ...DEFAULT_PRAYER_FIELDS
   });
   const [pendingPrayerFields, setPendingPrayerFields] = useState<typeof prayerFields | null>(null);
   const prayerImageRef = useRef<HTMLInputElement>(null);
@@ -374,9 +374,7 @@ const Admin = () => {
   // Quote Section editing
   const [showQuoteEditor, setShowQuoteEditor] = useState(false);
   const [quoteFields, setQuoteFields] = useState({
-    quote: 'Dios quiere hacer algo en tu vida pero necesita que le escuches',
-    author: 'Pra. Bethany Abreu',
-    imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=600&fit=crop&crop=face'
+    ...DEFAULT_QUOTE_FIELDS
   });
   const [pendingQuoteFields, setPendingQuoteFields] = useState<typeof quoteFields | null>(null);
   const quoteImageRef = useRef<HTMLInputElement>(null);
@@ -560,11 +558,21 @@ const Admin = () => {
         
         // Load hero media settings
         if (contentMap.hero) {
+          const dbVideoUrl = contentMap.hero.video_url || '';
+          const dbVideoFileUrl = contentMap.hero.video_file_url || '';
+          const dbImageUrl = contentMap.hero.image_url || '';
+          const wanted = (contentMap.hero.media_type as 'video' | 'image' | 'video_file') || '';
+          // Usa el tipo pedido solo si tiene contenido; si no, cae al video de respaldo
+          let mediaType: 'video' | 'image' | 'video_file';
+          if (wanted === 'video') mediaType = dbVideoUrl ? 'video' : defaultHeroMedia.mediaType;
+          else if (wanted === 'video_file') mediaType = dbVideoFileUrl ? 'video_file' : defaultHeroMedia.mediaType;
+          else if (wanted === 'image') mediaType = dbImageUrl ? 'image' : dbVideoUrl ? 'video' : dbVideoFileUrl ? 'video_file' : defaultHeroMedia.mediaType;
+          else mediaType = dbVideoUrl ? 'video' : dbVideoFileUrl ? 'video_file' : dbImageUrl ? 'image' : defaultHeroMedia.mediaType;
           const media: HeroMedia = {
-            mediaType: (contentMap.hero.media_type as 'video' | 'image' | 'video_file') || 'video',
-            videoUrl: contentMap.hero.video_url || defaultHeroMedia.videoUrl,
-            imageUrl: contentMap.hero.image_url || '',
-            videoFileUrl: contentMap.hero.video_file_url || '',
+            mediaType,
+            videoUrl: dbVideoUrl,
+            imageUrl: dbImageUrl,
+            videoFileUrl: dbVideoFileUrl || defaultHeroMedia.videoFileUrl,
             mobileMediaType: (contentMap.hero.mobile_media_type as 'video' | 'image' | 'video_file') || undefined,
             mobileVideoUrl: contentMap.hero.mobile_video_url || '',
             mobileImageUrl: contentMap.hero.mobile_image_url || '',
@@ -579,12 +587,12 @@ const Admin = () => {
           try {
             const parsed = JSON.parse(contentMap.footer.content);
             setFooterFields({
-              facebookUrl: parsed.facebookUrl || '',
-              instagramUrl: parsed.instagramUrl || '',
-              youtubeUrl: parsed.youtubeUrl || '',
-              emailUrl: parsed.emailUrl || '',
-              liveStreamUrl: parsed.liveStreamUrl || '',
-              whatsappNumber: parsed.whatsappNumber || ''
+              facebookUrl: parsed.facebookUrl || DEFAULT_FOOTER_FIELDS.facebookUrl,
+              instagramUrl: parsed.instagramUrl || DEFAULT_FOOTER_FIELDS.instagramUrl,
+              youtubeUrl: parsed.youtubeUrl || DEFAULT_FOOTER_FIELDS.youtubeUrl,
+              emailUrl: parsed.emailUrl || DEFAULT_FOOTER_FIELDS.emailUrl,
+              liveStreamUrl: parsed.liveStreamUrl || DEFAULT_FOOTER_FIELDS.liveStreamUrl,
+              whatsappNumber: parsed.whatsappNumber || DEFAULT_FOOTER_FIELDS.whatsappNumber
             });
             console.log('Loaded footer fields:', parsed);
           } catch {
@@ -597,13 +605,13 @@ const Admin = () => {
           try {
             const parsed = contentMap.prayer.content ? JSON.parse(contentMap.prayer.content) : {};
             setPrayerFields({
-              title: contentMap.prayer.title || 'ORACIÓN',
-              subtitle: contentMap.prayer.subtitle || 'CONGREGACIONAL',
-              schedule: parsed.schedule || 'Lunes a Viernes',
-              time: parsed.time || '05:30 hs',
-              buttonText: parsed.buttonText || 'PARTICIPAR',
-              buttonUrl: parsed.buttonUrl || '#contacto',
-              backgroundImage: contentMap.prayer.image_url || ''
+              title: contentMap.prayer.title || DEFAULT_PRAYER_FIELDS.title,
+              subtitle: contentMap.prayer.subtitle || DEFAULT_PRAYER_FIELDS.subtitle,
+              schedule: parsed.schedule || DEFAULT_PRAYER_FIELDS.schedule,
+              time: parsed.time || DEFAULT_PRAYER_FIELDS.time,
+              buttonText: parsed.buttonText || DEFAULT_PRAYER_FIELDS.buttonText,
+              buttonUrl: parsed.buttonUrl || DEFAULT_PRAYER_FIELDS.buttonUrl,
+              backgroundImage: contentMap.prayer.image_url || DEFAULT_PRAYER_FIELDS.backgroundImage
             });
           } catch {
             // Keep defaults
@@ -613,9 +621,9 @@ const Admin = () => {
         // Load quote section fields
         if (contentMap.quote) {
           setQuoteFields({
-            quote: contentMap.quote.title || 'Dios quiere hacer algo en tu vida pero necesita que le escuches',
-            author: contentMap.quote.subtitle || 'Pra. Bethany Abreu',
-            imageUrl: contentMap.quote.content || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=600&fit=crop&crop=face'
+            quote: contentMap.quote.title || DEFAULT_QUOTE_FIELDS.quote,
+            author: contentMap.quote.subtitle || DEFAULT_QUOTE_FIELDS.author,
+            imageUrl: contentMap.quote.content || DEFAULT_QUOTE_FIELDS.imageUrl
           });
         }
 
@@ -689,9 +697,28 @@ const Admin = () => {
           setHasUnsavedChanges(false);
         }
       }
-      if (servicesRes.data) setServices(servicesRes.data);
-      if (announcementsRes.data) setAnnouncements(announcementsRes.data);
-      if (ministriesRes.data) setMinistries(ministriesRes.data);
+      // Si las tablas están vacías (proyecto nuevo), restaurar desde los respaldos
+      let servicesList = servicesRes.data || [];
+      if (!servicesList.length) {
+        const { data: seeded, error: seedError } = await supabase.from('services').insert(DEFAULT_SERVICES).select();
+        if (seedError) console.warn('No se pudieron restaurar servicios:', seedError.message);
+        if (seeded?.length) servicesList = seeded;
+      }
+      let announcementsList = announcementsRes.data || [];
+      if (!announcementsList.length) {
+        const { data: seeded, error: seedError } = await supabase.from('announcements').insert(DEFAULT_ANNOUNCEMENTS).select();
+        if (seedError) console.warn('No se pudieron restaurar anuncios:', seedError.message);
+        if (seeded?.length) announcementsList = seeded;
+      }
+      let ministriesList = ministriesRes.data || [];
+      if (!ministriesList.length) {
+        const { data: seeded, error: seedError } = await supabase.from('ministries').insert(DEFAULT_MINISTRIES).select();
+        if (seedError) console.warn('No se pudieron restaurar ministerios:', seedError.message);
+        if (seeded?.length) ministriesList = seeded;
+      }
+      if (servicesList.length) setServices(servicesList);
+      if (announcementsList.length) setAnnouncements(announcementsList);
+      if (ministriesList.length) setMinistries(ministriesList);
       if (galleryRes.data) setAboutGallery(galleryRes.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -1090,144 +1117,92 @@ const Admin = () => {
       pendingServices: Array.from(pendingServices.entries())
     });
 
-    // Save hero config and media
-    if (pageContent.hero?.id) {
-      const heroContentString = JSON.stringify(pendingHeroConfig);
-      console.log('=== HERO SAVE DEBUG ===');
-      console.log('Hero ID:', pageContent.hero.id);
-      console.log('Content:', heroContentString);
-      console.log('Media Type:', pendingHeroMedia.mediaType);
-      console.log('Video URL:', pendingHeroMedia.videoUrl);
-      console.log('Video File URL:', pendingHeroMedia.videoFileUrl);
-      console.log('Image URL:', pendingHeroMedia.imageUrl);
-      
-      try {
-        const updateData = { 
-          content: heroContentString,
-          video_url: pendingHeroMedia.videoUrl || null,
-          image_url: pendingHeroMedia.imageUrl || null,
-          video_file_url: pendingHeroMedia.videoFileUrl || null,
-          media_type: pendingHeroMedia.mediaType,
-          mobile_video_url: pendingHeroMedia.mobileVideoUrl || null,
-          mobile_image_url: pendingHeroMedia.mobileImageUrl || null,
-          mobile_video_file_url: pendingHeroMedia.mobileVideoFileUrl || null,
-          mobile_media_type: pendingHeroMedia.mobileMediaType || null
-        };
-        console.log('Update payload:', JSON.stringify(updateData, null, 2));
-        
-        const { error, data } = await supabase
-          .from('page_content')
-          .update(updateData)
-          .eq('id', pageContent.hero.id)
-          .select();
-        
-        console.log('Hero save result - error:', error);
-        console.log('Hero save result - data:', data);
-        
-        if (error) {
-          console.error('Error saving hero - full error:', JSON.stringify(error, null, 2));
-          hasError = true;
-          errorSections.push('Hero');
-        } else {
-          setHeroConfig(pendingHeroConfig);
-          setHeroMedia(pendingHeroMedia);
-          setPageContent(prev => ({
-            ...prev,
-            hero: { 
-              ...prev.hero!, 
-              content: heroContentString,
-              video_url: pendingHeroMedia.videoUrl,
-              image_url: pendingHeroMedia.imageUrl,
-              video_file_url: pendingHeroMedia.videoFileUrl,
-              media_type: pendingHeroMedia.mediaType,
-              mobile_video_url: pendingHeroMedia.mobileVideoUrl,
-              mobile_image_url: pendingHeroMedia.mobileImageUrl,
-              mobile_video_file_url: pendingHeroMedia.mobileVideoFileUrl,
-              mobile_media_type: pendingHeroMedia.mobileMediaType
-            }
-          }));
-        }
-      } catch (catchError) {
-        console.error('Caught exception saving hero:', catchError);
+    // Save hero config and media (upsert: crea la fila si no existe en la BD)
+    const heroContentString = JSON.stringify(pendingHeroConfig);
+    try {
+      const updateData = {
+        section: 'hero',
+        is_visible: true,
+        content: heroContentString,
+        video_url: pendingHeroMedia.videoUrl || null,
+        image_url: pendingHeroMedia.imageUrl || null,
+        video_file_url: pendingHeroMedia.videoFileUrl || null,
+        media_type: pendingHeroMedia.mediaType,
+        mobile_video_url: pendingHeroMedia.mobileVideoUrl || null,
+        mobile_image_url: pendingHeroMedia.mobileImageUrl || null,
+        mobile_video_file_url: pendingHeroMedia.mobileVideoFileUrl || null,
+        mobile_media_type: pendingHeroMedia.mobileMediaType || null
+      };
+
+      const { error, data } = await supabase
+        .from('page_content')
+        .upsert(updateData, { onConflict: 'section' })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving hero - full error:', JSON.stringify(error, null, 2));
         hasError = true;
         errorSections.push('Hero');
+      } else {
+        setHeroConfig(pendingHeroConfig);
+        setHeroMedia(pendingHeroMedia);
+        if (data) {
+          setPageContent(prev => ({ ...prev, hero: data }));
+        }
       }
-    } else {
-      console.log('No hero ID found - pageContent.hero:', pageContent.hero);
+    } catch (catchError) {
+      console.error('Caught exception saving hero:', catchError);
+      hasError = true;
+      errorSections.push('Hero');
     }
 
-    // Save about section with extra fields as JSON in content
-    if (pageContent.about?.id) {
-      console.log('Saving about to ID:', pageContent.about.id);
-      
-      // Serialize aboutExtraFields to JSON for the content column
-      const aboutContentString = JSON.stringify(aboutExtraFields);
-      console.log('Saving about content:', aboutContentString);
-      
-      const { error, data } = await supabase
-        .from('page_content')
-        .update({
-          title: pendingPageContent.about?.title || pageContent.about.title || null,
-          subtitle: pendingPageContent.about?.subtitle || pageContent.about.subtitle || null,
-          content: aboutContentString
-        })
-        .eq('id', pageContent.about.id)
-        .select();
-      
-      console.log('About save result:', { error, data });
-      
-      if (error) {
-        console.error('Error saving about:', error);
-        hasError = true;
-        errorSections.push('Nosotros');
-      } else {
-        setPageContent(prev => ({
-          ...prev,
-          about: { 
-            ...prev.about!, 
-            title: pendingPageContent.about?.title || pageContent.about?.title || null,
-            subtitle: pendingPageContent.about?.subtitle || pageContent.about?.subtitle || null,
-            content: aboutContentString
-          }
-        }));
-      }
+    // Save about section with extra fields as JSON in content (upsert: crea la fila si no existe)
+    const aboutContentString = JSON.stringify(aboutExtraFields);
+    const { error: aboutError, data: aboutData } = await supabase
+      .from('page_content')
+      .upsert({
+        section: 'about',
+        title: pendingPageContent.about?.title || pageContent.about?.title || DEFAULT_ABOUT.title,
+        subtitle: pendingPageContent.about?.subtitle || pageContent.about?.subtitle || DEFAULT_ABOUT.subtitle,
+        content: aboutContentString,
+        is_visible: true
+      }, { onConflict: 'section' })
+      .select()
+      .single();
+
+    console.log('About save result:', { error: aboutError, data: aboutData });
+
+    if (aboutError) {
+      console.error('Error saving about:', aboutError);
+      hasError = true;
+      errorSections.push('Nosotros');
+    } else if (aboutData) {
+      setPageContent(prev => ({ ...prev, about: aboutData }));
     }
 
-    // Save contact section with extra fields as JSON in content
-    if (pageContent.contact?.id) {
-      console.log('Saving contact to ID:', pageContent.contact.id);
-      
-      // Serialize contactExtraFields to JSON for the content column
-      const contactContentString = JSON.stringify(contactExtraFields);
-      console.log('Saving contact content:', contactContentString);
-      
-      const { error, data } = await supabase
-        .from('page_content')
-        .update({
-          title: pendingPageContent.contact?.title || pageContent.contact.title || null,
-          subtitle: pendingPageContent.contact?.subtitle || pageContent.contact.subtitle || null,
-          content: contactContentString
-        })
-        .eq('id', pageContent.contact.id)
-        .select();
-      
-      console.log('Contact save result:', { error, data });
-      
-      if (error) {
-        console.error('Error saving contact:', error);
-        hasError = true;
-        errorSections.push('Contacto');
-      } else {
-        setPageContent(prev => ({
-          ...prev,
-          contact: { 
-            ...prev.contact!, 
-            title: pendingPageContent.contact?.title || pageContent.contact?.title || null,
-            subtitle: pendingPageContent.contact?.subtitle || pageContent.contact?.subtitle || null,
-            content: contactContentString
-          }
-        }));
-      }
+    // Save contact section with extra fields as JSON in content (upsert: crea la fila si no existe)
+    const contactContentString = JSON.stringify(contactExtraFields);
+    const { error: contactError, data: contactData } = await supabase
+      .from('page_content')
+      .upsert({
+        section: 'contact',
+        title: pendingPageContent.contact?.title || pageContent.contact?.title || DEFAULT_CONTACT.title,
+        subtitle: pendingPageContent.contact?.subtitle || pageContent.contact?.subtitle || DEFAULT_CONTACT.subtitle,
+        content: contactContentString,
+        is_visible: true
+      }, { onConflict: 'section' })
+      .select()
+      .single();
+
+    console.log('Contact save result:', { error: contactError, data: contactData });
+
+    if (contactError) {
+      console.error('Error saving contact:', contactError);
+      hasError = true;
+      errorSections.push('Contacto');
+    } else if (contactData) {
+      setPageContent(prev => ({ ...prev, contact: contactData }));
     }
 
     // Save footer section (social media URLs) using upsert

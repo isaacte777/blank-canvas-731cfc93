@@ -202,7 +202,7 @@ export const Announcements = ({
                 {isEditable && onEditAnnouncement && (
                   <button
                     onClick={() => onEditAnnouncement(announcement)}
-                    className="absolute top-3 right-3 z-10 p-2.5 bg-primary/90 hover:bg-primary text-white rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                    className="absolute top-3 right-3 z-10 p-2.5 bg-foreground/90 hover:bg-foreground text-background rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
                     title="Editar anuncio"
                   >
                     <Edit3 className="w-4 h-4" />

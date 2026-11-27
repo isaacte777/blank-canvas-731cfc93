@@ -110,7 +110,7 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                   {isEditable && onEditEvent && (
                     <button
                       onClick={() => onEditEvent(event)}
-                      className="absolute top-2 right-2 z-10 p-2 bg-pink/90 hover:bg-pink text-background rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                      className="absolute top-2 right-2 z-10 p-2 bg-foreground/90 hover:bg-foreground text-background rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
                       title="Editar evento"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -133,8 +133,8 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                   <div className="relative bg-gradient-to-r from-turquoise/10 to-pink/10 px-5 py-4 border-b border-border/30">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-turquoise/20 rounded-xl border border-turquoise/30 group-hover:bg-turquoise/30 transition-colors">
-                          <Calendar className="w-4 h-4 text-turquoise" />
+                        <div className="p-2">
+                          <Calendar className="w-4 h-4 text-foreground" />
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider" style={{ fontFamily: 'var(--font-hero)' }}>
@@ -164,7 +164,7 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                     
                     {event.location && (
                       <div className="flex items-center gap-2 mb-3">
-                        <MapPin className="w-3.5 h-3.5 text-pink shrink-0" />
+                        <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-xs text-muted-foreground line-clamp-1">{event.location}</span>
                       </div>
                     )}
@@ -221,9 +221,9 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                 </DialogHeader>
                 
                 <div className="space-y-3 md:space-y-4 mt-4 md:mt-6">
-                  <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-turquoise/10 rounded-lg border border-turquoise/30">
-                    <div className="p-2 md:p-3 bg-turquoise/20 rounded-lg">
-                      <Calendar className="w-5 h-5 md:w-6 md:h-6 text-turquoise" />
+                  <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg border border-border/60">
+                    <div className="p-2 md:p-3">
+                      <Calendar className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
                     </div>
                     <div>
                       <p className="text-xs md:text-sm text-muted-foreground font-body">Fecha</p>
@@ -235,10 +235,10 @@ export const Events = ({ events: propEvents, isEditable = false, onEditEvent }: 
                   </div>
                   
                   {selectedEvent.location && (
-                    <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 bg-pink/10 rounded-lg border border-pink/30">
-                      <div className="p-2 md:p-3 bg-pink/20 rounded-lg">
-                        <MapPin className="w-5 h-5 md:w-6 md:h-6 text-pink" />
-                      </div>
+                  <div className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-lg border border-border/60">
+                    <div className="p-2 md:p-3">
+                      <MapPin className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+                    </div>
                       <div>
                         <p className="text-xs md:text-sm text-muted-foreground font-body">Ubicación</p>
                         <p className="text-base md:text-lg font-heading text-foreground">{selectedEvent.location}</p>

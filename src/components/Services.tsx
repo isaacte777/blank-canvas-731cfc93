@@ -194,7 +194,7 @@ export const Services = ({ services: propServices, onEditService, isEditable = f
                           e.stopPropagation();
                           onEditService(service);
                         }}
-                        className="bg-card/95 backdrop-blur-sm border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs h-7 px-3 shadow-xl"
+                        className="bg-card/95 backdrop-blur-sm border-border/60 text-foreground hover:bg-muted text-xs h-7 px-3 shadow-xl"
                       >
                         <Edit3 className="w-3 h-3 mr-1.5" /> Editar
                       </Button>
@@ -207,8 +207,8 @@ export const Services = ({ services: propServices, onEditService, isEditable = f
                     onClick={isEditable && onEditService ? () => onEditService(service) : undefined}
                   >
                     {/* Icono con fondo */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-5 sm:mb-6 transform group-hover/service:rotate-6 transition-transform border border-primary/20">
-                      <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-primary" strokeWidth={1.5} />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-muted rounded-2xl flex items-center justify-center mb-5 sm:mb-6 transform group-hover/service:rotate-6 transition-transform border border-border/60">
+                      <Icon className="w-7 h-7 sm:w-8 sm:h-8 text-foreground" strokeWidth={1.5} />
                     </div>
 
                     {/* Título */}
@@ -219,8 +219,8 @@ export const Services = ({ services: propServices, onEditService, isEditable = f
                     {/* Horario destacado */}
                     {(service.day || service.time) && (
                       <div className="flex items-center gap-2 mb-3 sm:mb-4">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium text-primary">
+                        <Clock className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">
                           {service.day}{service.day && service.time && ' • '}{service.time}
                         </span>
                       </div>
