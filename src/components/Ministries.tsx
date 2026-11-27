@@ -32,12 +32,16 @@ interface MinistriesProps {
 /** Copies of the list rendered in the strip: 3 cycles enable seamless infinite wrap. */
 const COPIES = 3;
 
-// True visual cycle: one card + gap (scrollWidth/3 drifts by gap/3 because
-// the strip has no trailing gap after the last card).
+// True visual cycle: one FULL copy of the list = N cards + N gaps.
+// (scrollWidth/3 drifts by gap/3 because the strip has no trailing gap,
+// and a single card+gap is far narrower than the viewport, which disabled wrap.)
 const getCycle = (el: HTMLDivElement): number => {
   const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
   const first = el.firstElementChild as HTMLElement | null;
-  if (first && first.offsetWidth > 0) return first.offsetWidth + gap;
+  if (first && first.offsetWidth > 0) {
+    const n = Math.max(1, Math.round(el.children.length / COPIES));
+    return n * (first.offsetWidth + gap);
+  }
   return el.scrollWidth / COPIES;
 };
 
