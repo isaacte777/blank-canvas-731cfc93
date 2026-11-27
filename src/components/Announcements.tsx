@@ -69,13 +69,12 @@ export const Announcements = ({
 
   return (
     <section 
-      className="relative py-12 sm:py-16 md:py-20 lg:py-24 overflow-hidden" 
+      className="relative py-16 sm:py-20 md:py-24 overflow-hidden" 
       ref={ref}
       style={{
         backgroundImage: 'url(https://images.unsplash.com/photo-1478147427282-58a87a120781?w=1920&q=80)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
+        backgroundPosition: 'center'
       }}
     >
       {/* Dark overlay */}
@@ -83,13 +82,17 @@ export const Announcements = ({
       
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+        <div className="text-center mb-8 sm:mb-10 md:mb-14">
           <h2 
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-wider uppercase"
             style={{ fontFamily: 'var(--font-hero)' }}
           >
             ANUNCIOS
           </h2>
+          <div className="w-16 h-1 bg-primary mx-auto mt-3 sm:mt-4 rounded-full" />
+          <p className="text-sm sm:text-base md:text-lg text-white/70 mt-3 sm:mt-4 max-w-2xl mx-auto">
+            Entérate de las actividades y novedades de nuestra comunidad
+          </p>
         </div>
 
         {/* Add Button for Admin */}

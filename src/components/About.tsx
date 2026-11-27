@@ -64,6 +64,12 @@ export const About = ({
   
   // No default gallery images - only show what's in the database
   const images = galleryImages.length > 0 ? galleryImages : [];
+
+  // Gallery layout: single featured image (0–1), uniform grid (2–5, 7+), Mondrian (exactly 6)
+  const galleryMode = images.length <= 1 ? 'single' : images.length === 6 ? 'mondrian' : 'uniform';
+  const uniformCols = images.length === 2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3';
+  const galleryHeight = 'h-[280px] sm:h-[400px] md:h-[500px] lg:h-[600px]';
+  const galleryBorders = ['border-primary/20', 'border-secondary/20', 'border-pink/20', 'border-purple/20', 'border-turquoise/20'];
   
   const values = [
     {
@@ -143,16 +149,19 @@ export const About = ({
   );
 
   return (
-    <section className="py-10 sm:py-12 md:py-20 lg:py-24 bg-muted/30" ref={ref}>
-      <div className="container mx-auto px-3 sm:px-4 md:px-6">
+    <section className="py-16 sm:py-20 md:py-24 bg-muted/30" ref={ref}>
+      <div className="container mx-auto px-4 sm:px-6">
         {/* Main content grid */}
         <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start max-w-7xl mx-auto">
           {/* Left side - Text content */}
           <div className={`space-y-4 sm:space-y-6 md:space-y-8 ${isVisible ? 'animate-slide-left-wow' : 'opacity-0'}`}>
-            <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display text-foreground tracking-wide">
-              <EditableText field="title">{title || ''}</EditableText>{' '}
-              <EditableText field="subtitle"><span className="text-purple">{subtitle || ''}</span></EditableText>
-            </h2>
+            <div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground tracking-wide">
+                <EditableText field="title">{title || ''}</EditableText>{' '}
+                <EditableText field="subtitle"><span className="text-purple">{subtitle || ''}</span></EditableText>
+              </h2>
+              <div className="w-16 h-1 bg-purple rounded-full mt-2 sm:mt-3" />
+            </div>
             <EditableText field="content">
               <p className="text-xs sm:text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed font-body">
                 {content || ''}
@@ -179,7 +188,7 @@ export const About = ({
                       </div>
                     </EditableText>
                     <EditableText field={value.descField}>
-                      <div className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground font-body hidden sm:block">
+                      <div className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-body hidden sm:block leading-snug">
                         {value.description}
                       </div>
                     </EditableText>
@@ -203,89 +212,104 @@ export const About = ({
             </div>
           </div>
           
-          {/* Right side - Mondrian-style Image Gallery */}
+          {/* Right side - Image Gallery */}
           <div className={`relative ${isVisible ? 'animate-slide-right-wow' : 'opacity-0'}`} style={{ animationDelay: '0.3s' }}>
-            {/* Mondrian Grid Layout */}
-            <div className="grid grid-cols-4 grid-rows-4 gap-1.5 sm:gap-2 md:gap-3 h-[280px] xs:h-[320px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
-              {/* Large image - spans 2 cols, 2 rows (top left) */}
-              {images[0] && (
-                <GalleryItem 
-                  image={images[0]} 
-                  className="col-span-2 row-span-2 rounded-2xl border-2 border-primary/20" 
-                  delay="0.4s"
+            {/* Single featured image (0 or 1 gallery images) */}
+            {galleryMode === 'single' && (
+              <div className={`relative overflow-hidden group rounded-2xl border-2 border-primary/20 ${galleryHeight}`}>
+                <img 
+                  src={images[0]?.image_url || communityImage} 
+                  alt={images[0]?.alt_text || 'Comunidad de fe'} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              )}
-              
-              {/* Medium image - spans 2 cols, 1 row (top right) */}
-              {images[1] && (
-                <GalleryItem 
-                  image={images[1]} 
-                  className="col-span-2 row-span-1 rounded-xl border-2 border-secondary/20" 
-                  delay="0.5s"
-                />
-              )}
-              
-              {/* Small square - 1 col, 1 row */}
-              {images[2] && (
-                <GalleryItem 
-                  image={images[2]} 
-                  className="col-span-1 row-span-1 rounded-lg border-2 border-pink/20" 
-                  delay="0.6s"
-                />
-              )}
-              
-              {/* Tall image - 1 col, 2 rows (right side) */}
-              {images[3] && (
-                <GalleryItem 
-                  image={images[3]} 
-                  className="col-span-1 row-span-2 rounded-xl border-2 border-purple/20" 
-                  delay="0.7s"
-                />
-              )}
-              
-              {/* Wide image - 2 cols, 1 row (bottom left) */}
-              {images[4] && (
-                <GalleryItem 
-                  image={images[4]} 
-                  className="col-span-2 row-span-1 rounded-xl border-2 border-turquoise/20" 
-                  delay="0.8s"
-                />
-              )}
-              
-              {/* Medium square - 1 col, 1 row (bottom middle) */}
-              {images[5] && (
-                <GalleryItem 
-                  image={images[5]} 
-                  className="col-span-1 row-span-1 rounded-lg border-2 border-primary/20" 
-                  delay="0.9s"
-                />
-              )}
-              
-              {/* Fill remaining space with primary image if less than 6 gallery images */}
-              {images.length < 6 && (
-                <div 
-                  className={`col-span-1 row-span-1 relative overflow-hidden rounded-lg border-2 border-muted group ${isVisible ? 'animate-card-wow' : 'opacity-0'}`}
-                  style={{ animationDelay: '0.9s' }}
-                >
-                  <img 
-                    src={communityImage} 
-                    alt="Comunidad de fe" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {isEditable && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (images[0]) onEditGalleryImage?.(images[0]);
+                      else onEditImage?.();
+                    }}
+                    className="absolute top-3 right-3 bg-primary text-primary-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200 z-10"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Uniform grid (2–5 or 7+ gallery images) */}
+            {galleryMode === 'uniform' && (
+              <div className={`grid gap-2 sm:gap-3 ${uniformCols}`}>
+                {images.map((image, index) => (
+                  <GalleryItem 
+                    key={image.id}
+                    image={image} 
+                    className={`aspect-square rounded-xl border-2 ${galleryBorders[index % galleryBorders.length]}`} 
+                    delay={`${0.4 + index * 0.08}s`}
                   />
-                  {isEditable && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEditImage?.();
-                      }}
-                      className="absolute top-2 right-2 bg-primary text-primary-foreground rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:scale-110 transform duration-200 z-10"
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
+
+            {/* Mondrian grid layout (exactly 6 gallery images - fills every cell) */}
+            {galleryMode === 'mondrian' && (
+              <div className="grid grid-cols-4 grid-rows-3 gap-1.5 sm:gap-2 md:gap-3 h-[280px] sm:h-[400px] md:h-[500px] lg:h-[600px]">
+                {/* Large image - spans 2 cols, 2 rows (top left) */}
+                {images[0] && (
+                  <GalleryItem 
+                    image={images[0]} 
+                    className="col-span-2 row-span-2 rounded-2xl border-2 border-primary/20" 
+                    delay="0.4s"
+                  />
+                )}
+                
+                {/* Medium image - spans 2 cols, 1 row (top right) */}
+                {images[1] && (
+                  <GalleryItem 
+                    image={images[1]} 
+                    className="col-span-2 row-span-1 rounded-xl border-2 border-secondary/20" 
+                    delay="0.5s"
+                  />
+                )}
+                
+                {/* Small square - 1 col, 1 row */}
+                {images[2] && (
+                  <GalleryItem 
+                    image={images[2]} 
+                    className="col-span-1 row-span-1 rounded-lg border-2 border-pink/20" 
+                    delay="0.6s"
+                  />
+                )}
+                
+                {/* Tall image - 1 col, 2 rows (right side) */}
+                {images[3] && (
+                  <GalleryItem 
+                    image={images[3]} 
+                    className="col-span-1 row-span-2 rounded-xl border-2 border-purple/20" 
+                    delay="0.7s"
+                  />
+                )}
+                
+                {/* Wide image - 2 cols, 1 row (bottom left) */}
+                {images[4] && (
+                  <GalleryItem 
+                    image={images[4]} 
+                    className="col-span-2 row-span-1 rounded-xl border-2 border-turquoise/20" 
+                    delay="0.8s"
+                  />
+                )}
+                
+                {/* Medium square - 1 col, 1 row (bottom middle) */}
+                {images[5] && (
+                  <GalleryItem 
+                    image={images[5]} 
+                    className="col-span-1 row-span-1 rounded-lg border-2 border-primary/20" 
+                    delay="0.9s"
+                  />
+                )}
+              </div>
+            )}
             
             {/* Decorative glow behind gallery */}
             <div className="absolute -inset-4 bg-gradient-to-br from-primary/10 via-purple/10 to-pink/10 blur-3xl rounded-3xl -z-10" />

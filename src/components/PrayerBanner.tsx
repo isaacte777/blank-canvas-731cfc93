@@ -1,6 +1,7 @@
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { Button } from "@/components/ui/button";
 import { EditableWrapper } from "@/components/admin/EditableWrapper";
+import { Clock } from "lucide-react";
 
 interface PrayerBannerProps {
   title?: string;
@@ -27,6 +28,14 @@ export const PrayerBanner = ({
 }: PrayerBannerProps) => {
   const { ref, isVisible } = useScrollAnimation();
 
+  // Fallbacks so the banner never renders blank if content is missing
+  const displayTitle = title || "ORACIÓN";
+  const displaySubtitle = subtitle || "CONGREGACIONAL";
+  const displaySchedule = schedule || "Lunes a Viernes";
+  const displayTime = time || "05:30 hs";
+  const displayButtonText = buttonText || "PARTICIPAR";
+  const displayButtonUrl = buttonUrl || "#contacto";
+
   const backgroundStyle = backgroundImage 
     ? {
         backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${backgroundImage})`,
@@ -34,7 +43,7 @@ export const PrayerBanner = ({
         backgroundPosition: 'center',
       }
     : {
-        background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-foreground), 0.1) 50%, hsl(var(--primary)) 100%)',
+        background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-foreground) / 0.12) 50%, hsl(var(--primary)) 100%)',
       };
 
   const content = (
@@ -54,29 +63,31 @@ export const PrayerBanner = ({
       )}
       
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10">
           {/* Left side - Text content */}
           <div className="text-center md:text-left">
             <h2 
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-wider uppercase mb-1"
               style={{ fontFamily: 'var(--font-hero)' }}
             >
-              {title}
+              {displayTitle}
             </h2>
             <p 
               className="text-lg sm:text-xl md:text-2xl text-white/90 tracking-[0.2em] uppercase mb-4"
               style={{ fontFamily: 'var(--font-hero)' }}
             >
-              {subtitle}
+              {displaySubtitle}
             </p>
-            <div className="flex items-center justify-center md:justify-start gap-2 text-white/80">
-              <span className="text-sm sm:text-base">{schedule}</span>
-              <span className="text-primary-foreground font-bold text-lg sm:text-xl">{time}</span>
+            {/* Schedule chip */}
+            <div className="inline-flex items-center justify-center gap-2.5 px-4 sm:px-5 py-2 rounded-full border border-white/30 bg-white/10 backdrop-blur-sm">
+              <Clock className="w-4 h-4 text-white/90 shrink-0" />
+              <span className="text-sm sm:text-base text-white/90">{displaySchedule}</span>
+              <span className="text-primary-foreground font-bold text-base sm:text-lg">{displayTime}</span>
             </div>
           </div>
 
           {/* Right side - Button */}
-          <div>
+          <div className="shrink-0">
             <Button 
               variant="outline"
               size="lg"
@@ -84,10 +95,10 @@ export const PrayerBanner = ({
               style={{ fontFamily: 'var(--font-hero)' }}
               asChild
             >
-              {buttonUrl.startsWith('http') ? (
-                <a href={buttonUrl} target="_blank" rel="noopener noreferrer">{buttonText}</a>
+              {displayButtonUrl.startsWith('http') ? (
+                <a href={displayButtonUrl} target="_blank" rel="noopener noreferrer">{displayButtonText}</a>
               ) : (
-                <a href={buttonUrl}>{buttonText}</a>
+                <a href={displayButtonUrl}>{displayButtonText}</a>
               )}
             </Button>
           </div>

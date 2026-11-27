@@ -103,8 +103,13 @@ export const Footer = ({
                 </a>
               </li>
               <li>
-                <a href="#eventos" className="text-muted-foreground hover:text-mint transition-colors">
-                  Eventos
+                <a href="#anuncios" className="text-muted-foreground hover:text-mint transition-colors">
+                  Anuncios
+                </a>
+              </li>
+              <li>
+                <a href="#ministerios" className="text-muted-foreground hover:text-mint transition-colors">
+                  Ministerios
                 </a>
               </li>
               <li>
@@ -173,6 +178,21 @@ export const Footer = ({
               </p>
             )}
           </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="border-t border-border pt-5 sm:pt-6 mt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <p className="text-[10px] sm:text-xs text-muted-foreground">
+            © {new Date().getFullYear()} Centro Familia de Adoración. Todos los derechos reservados.
+          </p>
+          {!isEditable && (
+            <a 
+              href="#inicio" 
+              className="text-[10px] sm:text-xs text-muted-foreground hover:text-mint transition-colors uppercase tracking-wider font-semibold"
+            >
+              Volver arriba ↑
+            </a>
+          )}
         </div>
 
       </div>

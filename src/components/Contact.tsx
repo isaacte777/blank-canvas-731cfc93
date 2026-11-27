@@ -149,14 +149,15 @@ export const Contact = ({
   };
   
   return (
-    <section className="py-10 sm:py-12 md:py-20 lg:py-24 bg-muted/30" ref={ref}>
-      <div className="container mx-auto px-3 sm:px-4 md:px-6">
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-16">
-          <h2 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-display text-foreground mb-2 sm:mb-3 md:mb-4 tracking-wide">
+    <section className="py-16 sm:py-20 md:py-24 bg-muted/30" ref={ref}>
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10 md:mb-14">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground mb-2 sm:mb-3 tracking-wide">
             <EditableText field="title">
               <span className="text-turquoise">{title || ''}</span>
             </EditableText>
           </h2>
+          <div className="w-16 h-1 bg-turquoise mx-auto rounded-full mb-3 sm:mb-4" />
           <EditableText field="subtitle">
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-turquoise-light font-body font-semibold">
               {subtitle || ''}
