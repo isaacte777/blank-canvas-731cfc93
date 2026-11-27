@@ -59,39 +59,34 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
               <Link
                 key={ministry.id}
                 to={`/ministerios/${ministry.slug}`}
-                className="group flex flex-col h-full bg-card border border-border/50 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:border-primary/30"
+                className="group relative block aspect-[3/4] overflow-hidden rounded-2xl bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_30px_60px_-25px_rgba(0,0,0,0.5)]"
               >
-                {/* Ministry image */}
-                <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
-                  {ministry.image_url ? (
-                    <img
-                      src={ministry.image_url}
-                      alt={ministry.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                {/* Full-bleed media: the image covers the whole portrait rectangle */}
+                {ministry.image_url ? (
+                  <img
+                    src={ministry.image_url}
+                    alt={ministry.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Icon
+                      className="w-16 h-16 sm:w-20 sm:h-20 text-foreground/40 group-hover:text-foreground/60 transition-all duration-700 ease-out group-hover:scale-105"
+                      strokeWidth={1}
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted">
-                      <Icon
-                        className="w-12 h-12 sm:w-14 sm:h-14 text-foreground/70 group-hover:text-foreground transition-colors duration-300"
-                        strokeWidth={1.5}
-                      />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
+                  </div>
+                )}
 
-                {/* Card content */}
-                <div className="flex flex-col flex-grow p-4 sm:p-5">
-                  <h3 className="text-base sm:text-lg font-bold text-foreground uppercase tracking-wide leading-snug">
+                {/* Gradient for text readability — no borders, no frame */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                {/* Bottom content: simple clear title + clear "Más información" button */}
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                  <h3 className="text-white font-bold uppercase tracking-wide text-lg sm:text-xl leading-snug">
                     {ministry.title}
                   </h3>
-                  {ministry.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mt-1.5 sm:mt-2 line-clamp-2 flex-grow">
-                      {ministry.description}
-                    </p>
-                  )}
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-wider mt-3 sm:mt-4">
-                    Conocer más
+                  <span className="mt-3 sm:mt-4 inline-flex items-center gap-2 rounded-full bg-white text-black px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] transition-all duration-300 group-hover:bg-white/90 group-hover:-translate-y-0.5">
+                    Más información
                     <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                   </span>
                 </div>
