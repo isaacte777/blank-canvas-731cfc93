@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
@@ -28,8 +29,154 @@ interface MinistriesProps {
   ministries: Ministry[];
 }
 
+/** Copies of the list rendered in the strip: 3 cycles enable seamless infinite wrap. */
+const COPIES = 3;
+
+// True visual cycle: one card + gap (scrollWidth/3 drifts by gap/3 because
+// the strip has no trailing gap after the last card).
+const getCycle = (el: HTMLDivElement): number => {
+  const gap = parseFloat(getComputedStyle(el).columnGap || '0') || 0;
+  const first = el.firstElementChild as HTMLElement | null;
+  if (first && first.offsetWidth > 0) return first.offsetWidth + gap;
+  return el.scrollWidth / COPIES;
+};
+
+// Keep the viewport inside the middle cycle so the strip looks endless.
+// Returns the ACTUAL shift applied (may be less than a cycle if the browser
+// clamped) so drag state stays consistent.
+const applyWrap = (el: HTMLDivElement): number => {
+  const cycle = getCycle(el);
+  const vw = el.clientWidth;
+  const max = el.scrollWidth - vw; // exact maximum scrollLeft (browser clamps here)
+  // Need room for a full cycle on both sides to wrap without oscillating
+  if (cycle <= vw || max < 2 * cycle) return 0;
+  if (el.scrollLeft < cycle) {
+    const before = el.scrollLeft;
+    el.scrollLeft = before + cycle;
+    return el.scrollLeft - before;
+  }
+  if (el.scrollLeft >= max) {
+    // NOTE: `>=` (not `>`) — scrollLeft can never EXCEED max, it clamps there
+    const before = el.scrollLeft;
+    el.scrollLeft = before - cycle;
+    return el.scrollLeft - before;
+  }
+  return 0;
+};
+
 export const Ministries = ({ ministries }: MinistriesProps) => {
   const { ref, isVisible } = useScrollAnimation();
+
+  // ── Infinite slider: click + drag anywhere, fluid inertia, free stop ──
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef({ active: false, startX: 0, startScroll: 0, moved: false });
+  const velRef = useRef(0); // px/ms of scrollLeft
+  const lastMoveRef = useRef({ t: 0, dx: 0 });
+  const inertiaRafRef = useRef(0);
+
+  const stopInertia = () => {
+    if (inertiaRafRef.current) cancelAnimationFrame(inertiaRafRef.current);
+    inertiaRafRef.current = 0;
+    velRef.current = 0;
+  };
+
+  // Position at the start of the middle cycle after mount / list size change
+  const count = ministries?.length ?? 0;
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cycle = getCycle(el);
+    const max = el.scrollWidth - el.clientWidth;
+    // Start at the beginning of the middle cycle when wrapping is possible
+    el.scrollLeft = cycle > el.clientWidth && max >= 2 * cycle ? Math.min(cycle, max) : 0;
+    const onResize = () => applyWrap(el);
+    window.addEventListener('resize', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      if (inertiaRafRef.current) cancelAnimationFrame(inertiaRafRef.current);
+    };
+  }, [count]);
+
+  // Mouse drag: 1:1 follow, then glide with friction (fluid, stops on its own;
+  // grab again at any moment to take control — "se detenga cuando yo quiere")
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse') return; // touch keeps native scrolling
+    const el = scrollRef.current;
+    if (!el) return;
+    stopInertia();
+    dragState.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft, moved: false };
+    velRef.current = 0;
+    lastMoveRef.current = { t: performance.now(), dx: 0 };
+    el.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    if (!dragState.current.active || !el) return;
+    const dx = e.clientX - dragState.current.startX;
+    if (Math.abs(dx) > 5) dragState.current.moved = true;
+    el.scrollLeft = dragState.current.startScroll - dx;
+    // If the strip wrapped during this move, shift the origin too so the
+    // 1:1 mapping stays continuous (no jump back on the next move)
+    const shift = applyWrap(el);
+    if (shift) dragState.current.startScroll += shift;
+    // velocity from dx (immune to wrap jumps), exponential moving average
+    const now = performance.now();
+    const prev = lastMoveRef.current;
+    const dt = now - prev.t;
+    if (dt > 0) {
+      const v = -(dx - prev.dx) / dt;
+      velRef.current = velRef.current * 0.65 + v * 0.35;
+    }
+    lastMoveRef.current = { t: now, dx };
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scrollRef.current;
+    dragState.current.active = false;
+    try {
+      el?.releasePointerCapture(e.pointerId);
+    } catch {
+      /* pointer already released */
+    }
+    if (!el || !dragState.current.moved) {
+      velRef.current = 0;
+      return;
+    }
+    // Inertial glide after release
+    let vel = velRef.current;
+    const step = () => {
+      const node = scrollRef.current;
+      if (!node) return;
+      vel *= 0.94; // friction per frame ≈ stops in ~1s
+      if (Math.abs(vel) < 0.15) {
+        velRef.current = 0;
+        inertiaRafRef.current = 0;
+        return;
+      }
+      node.scrollLeft += vel * 16;
+      applyWrap(node);
+      inertiaRafRef.current = requestAnimationFrame(step);
+    };
+    if (Math.abs(vel) > 0.05) {
+      inertiaRafRef.current = requestAnimationFrame(step);
+    }
+  };
+
+  // Native scrolling (touch, momentum) also wraps
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (el) applyWrap(el);
+  };
+
+  // Prevent navigation when the user was dragging instead of clicking
+  const handleClickCapture = (e: React.MouseEvent) => {
+    if (dragState.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      dragState.current.moved = false;
+    }
+  };
 
   // Don't render if no ministries
   if (!ministries || ministries.length === 0) {
@@ -50,54 +197,70 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
           </p>
         </div>
 
-        {/* Responsive grid of ministry cards */}
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6 max-w-7xl mx-auto transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          {ministries.map((ministry) => {
-            const Icon = iconMap[ministry.icon || 'Users'] || Users;
+        {/* Infinite single lane: click + drag to slide endlessly */}
+        <div className={`relative transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
+          <div
+            ref={scrollRef}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
+            onScroll={handleScroll}
+            onClickCapture={handleClickCapture}
+            onDragStart={(e) => e.preventDefault()}
+            onDrop={(e) => e.preventDefault()}
+            className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar pb-1 select-none cursor-grab active:cursor-grabbing"
+          >
+            {Array.from({ length: COPIES }, (_, copyIdx) =>
+              ministries.map((ministry) => {
+                const Icon = iconMap[ministry.icon || 'Users'] || Users;
+                const isMiddle = copyIdx === 1;
 
-            return (
-              <Link
-                key={ministry.id}
-                to={`/ministerios/${ministry.slug}`}
-                className="group flex flex-col h-full bg-card border border-border/50 rounded-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl hover:border-primary/30"
-              >
-                {/* Ministry image */}
-                <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
-                  {ministry.image_url ? (
-                    <img
-                      src={ministry.image_url}
-                      alt={ministry.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-muted">
-                      <Icon
-                        className="w-12 h-12 sm:w-14 sm:h-14 text-foreground/70 group-hover:text-foreground transition-colors duration-300"
-                        strokeWidth={1.5}
+                return (
+                  <Link
+                    key={`${copyIdx}-${ministry.id}`}
+                    to={`/ministerios/${ministry.slug}`}
+                    aria-hidden={!isMiddle}
+                    tabIndex={isMiddle ? undefined : -1}
+                    draggable={false}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500"
+                  >
+                    {/* Full-bleed media: the image covers the whole portrait rectangle */}
+                    {ministry.image_url ? (
+                      <img
+                        src={ministry.image_url}
+                        alt={ministry.title}
+                        draggable={false}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <Icon
+                          className="w-16 h-16 sm:w-20 sm:h-20 text-foreground/40 group-hover:text-foreground/60 transition-all duration-700 ease-out group-hover:scale-105"
+                          strokeWidth={1}
+                        />
+                      </div>
+                    )}
 
-                {/* Card content */}
-                <div className="flex flex-col flex-grow p-4 sm:p-5">
-                  <h3 className="text-base sm:text-lg font-bold text-foreground uppercase tracking-wide leading-snug">
-                    {ministry.title}
-                  </h3>
-                  {ministry.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mt-1.5 sm:mt-2 line-clamp-2 flex-grow">
-                      {ministry.description}
-                    </p>
-                  )}
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground group-hover:text-foreground transition-colors uppercase tracking-wider mt-3 sm:mt-4">
-                    Conocer más
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+                    {/* Gradient for text readability — no borders, no frame */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                    {/* Bottom content: simple clear title + clear "Más información" button */}
+                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                      <h3 className="text-white font-bold uppercase tracking-wide text-lg sm:text-xl leading-snug">
+                        {ministry.title}
+                      </h3>
+                      <span className="mt-3 sm:mt-4 inline-flex items-center gap-2 rounded-full bg-white text-black px-5 py-2.5 text-[11px] font-bold uppercase tracking-[0.15em] transition-all duration-300 group-hover:bg-white/90 group-hover:-translate-y-0.5">
+                        Más información
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
     </section>

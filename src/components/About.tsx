@@ -301,6 +301,27 @@ export const About = ({
           </div>
         </div>
       </div>
+
+      {/* Marquee cinético (estilo Mosaic): tipografía en movimiento continuo */}
+      <div
+        className="marquee-band mt-10 sm:mt-14 border-y border-border/50 py-3 sm:py-4 overflow-hidden select-none"
+        aria-hidden="true"
+      >
+        <div className="flex w-max animate-marquee">
+          {[0, 1].map((group) => (
+            <div key={group} className="flex shrink-0 items-center">
+              {['CREE.', 'PERTENECE.', 'TRANSFORMA.', 'BIENVENIDOS A CFA'].map((text) => (
+                <span key={text} className="flex items-center whitespace-nowrap">
+                  <span className="px-5 sm:px-7 text-sm sm:text-base md:text-lg font-heading font-semibold uppercase tracking-[0.3em] text-foreground/70">
+                    {text}
+                  </span>
+                  <span className="text-foreground/30 text-xs sm:text-sm">✦</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 };
