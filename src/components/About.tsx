@@ -163,8 +163,8 @@ export const About = ({
       />
       <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
-      {/* Edit button for gallery images (hidden on fallback seed images) */}
-      {isEditable && onEditGalleryImage && !isSeedImage(image) && (
+      {/* Edit button for gallery images */}
+      {isEditable && onEditGalleryImage && (
         <button
           onClick={(e) => {
             e.stopPropagation();
