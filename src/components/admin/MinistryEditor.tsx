@@ -1,8 +1,7 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -63,21 +62,65 @@ interface MinistryEditorProps {
   onUpdateMinistry: (id: string, changes: Partial<Ministry>) => void;
   onDeleteMinistry: (id: string) => void;
   onToggleVisibility: (id: string, isVisible: boolean) => void;
+  /** Controlled state: id of the ministry being edited (null = closed) */
+  openEditId?: string | null;
+  /** Controlled state: whether the add dialog is open */
+  openAdd?: boolean;
+  onEditingClose?: () => void;
+  onAddClose?: () => void;
 }
+
+/** Merge base ministries with pending changes (pure, module scope). */
+const mergeMinistries = (
+  ministries: Ministry[],
+  pendingChanges: Map<string, Partial<Ministry> & { isNew?: boolean; isDeleted?: boolean }>
+): Ministry[] => {
+  const merged = new Map<string, Ministry>();
+  ministries.forEach(m => merged.set(m.id, { ...m }));
+  pendingChanges.forEach((changes, id) => {
+    if (changes.isDeleted) {
+      merged.delete(id);
+    } else if (changes.isNew) {
+      merged.set(id, {
+        id,
+        slug: changes.slug || '',
+        title: changes.title || '',
+        description: changes.description || null,
+        content: changes.content || null,
+        image_url: changes.image_url || null,
+        icon: changes.icon || 'Users',
+        schedule: changes.schedule || null,
+        leader: changes.leader || null,
+        is_visible: changes.is_visible ?? true,
+        display_order: changes.display_order || 0,
+        isNew: true
+      });
+    } else {
+      const existing = merged.get(id);
+      if (existing) {
+        merged.set(id, { ...existing, ...changes });
+      }
+    }
+  });
+  return Array.from(merged.values()).sort((a, b) => a.display_order - b.display_order);
+};
 
 export const MinistryEditor = ({ 
   ministries, 
-  pendingChanges,
+  pendingChanges, 
   onAddMinistry, 
   onUpdateMinistry, 
-  onDeleteMinistry,
-  onToggleVisibility 
+  onDeleteMinistry, 
+  onToggleVisibility,
+  openEditId = null,
+  openAdd = false,
+  onEditingClose,
+  onAddClose
 }: MinistryEditorProps) => {
   const { toast } = useToast();
   const { uploadImage, uploading } = useImageUpload();
   
   const [editingMinistry, setEditingMinistry] = useState<Ministry | null>(null);
-  const [showAddMinistry, setShowAddMinistry] = useState(false);
   const [editForm, setEditForm] = useState({
     title: '',
     slug: '',
@@ -91,46 +134,32 @@ export const MinistryEditor = ({
   const imageInputRef = useRef<HTMLInputElement>(null);
   const addImageInputRef = useRef<HTMLInputElement>(null);
 
-  // Merge ministries with pending changes for display
-  const getMergedMinistries = () => {
-    const merged = new Map<string, Ministry>();
-    
-    // Add existing ministries
-    ministries.forEach(m => {
-      merged.set(m.id, { ...m });
-    });
-    
-    // Apply pending changes
-    pendingChanges.forEach((changes, id) => {
-      if (changes.isDeleted) {
-        merged.delete(id);
-      } else if (changes.isNew) {
-        merged.set(id, {
-          id,
-          slug: changes.slug || '',
-          title: changes.title || '',
-          description: changes.description || null,
-          content: changes.content || null,
-          image_url: changes.image_url || null,
-          icon: changes.icon || 'Users',
-          schedule: changes.schedule || null,
-          leader: changes.leader || null,
-          is_visible: changes.is_visible ?? true,
-          display_order: changes.display_order || 0,
-          isNew: true
-        });
-      } else {
-        const existing = merged.get(id);
-        if (existing) {
-          merged.set(id, { ...existing, ...changes });
-        }
-      }
-    });
-    
-    return Array.from(merged.values()).sort((a, b) => a.display_order - b.display_order);
-  };
+  const displayMinistries = mergeMinistries(ministries, pendingChanges);
 
-  const displayMinistries = getMergedMinistries();
+  // Open the edit dialog when the parent sets openEditId (card click / pencil in the preview)
+  const lastOpenedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!openEditId) {
+      lastOpenedRef.current = null;
+      return;
+    }
+    if (openEditId === lastOpenedRef.current) return;
+    lastOpenedRef.current = openEditId;
+    const ministry = mergeMinistries(ministries, pendingChanges).find(m => m.id === openEditId);
+    if (ministry) {
+      setEditingMinistry(ministry);
+      setEditForm({
+        title: ministry.title || '',
+        slug: ministry.slug || '',
+        description: ministry.description || '',
+        content: ministry.content || '',
+        schedule: ministry.schedule || '',
+        leader: ministry.leader || '',
+        image_url: ministry.image_url || '',
+        icon: ministry.icon || 'Users'
+      });
+    }
+  }, [openEditId, ministries, pendingChanges]);
 
   const generateSlug = (title: string) => {
     return title
@@ -139,38 +168,6 @@ export const MinistryEditor = ({
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
-  };
-
-  const openEditor = (ministry: Ministry) => {
-    // Get current state including pending changes
-    const pendingChange = pendingChanges.get(ministry.id);
-    const currentState = pendingChange ? { ...ministry, ...pendingChange } : ministry;
-    
-    setEditingMinistry(currentState);
-    setEditForm({
-      title: currentState.title || '',
-      slug: currentState.slug || '',
-      description: currentState.description || '',
-      content: currentState.content || '',
-      schedule: currentState.schedule || '',
-      leader: currentState.leader || '',
-      image_url: currentState.image_url || '',
-      icon: currentState.icon || 'Users'
-    });
-  };
-
-  const openAddDialog = () => {
-    setEditForm({
-      title: '',
-      slug: '',
-      description: '',
-      content: '',
-      schedule: '',
-      leader: '',
-      image_url: '',
-      icon: 'Users'
-    });
-    setShowAddMinistry(true);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, isNew: boolean = false) => {
@@ -200,6 +197,7 @@ export const MinistryEditor = ({
     
     toast({ title: "Cambios aplicados", description: "Presiona 'Guardar Edits' para guardar definitivamente" });
     setEditingMinistry(null);
+    onEditingClose?.();
   };
 
   const handleAdd = () => {
@@ -232,7 +230,7 @@ export const MinistryEditor = ({
     });
     
     toast({ title: "Ministerio agregado", description: "Presiona 'Guardar Edits' para guardar definitivamente" });
-    setShowAddMinistry(false);
+    onAddClose?.();
   };
 
   const handleDelete = () => {
@@ -241,10 +239,13 @@ export const MinistryEditor = ({
     onDeleteMinistry(editingMinistry.id);
     toast({ title: "Ministerio marcado para eliminar", description: "Presiona 'Guardar Edits' para confirmar la eliminación" });
     setEditingMinistry(null);
+    onEditingClose?.();
   };
 
   const handleToggleVisibility = (ministry: Ministry) => {
     onToggleVisibility(ministry.id, !ministry.is_visible);
+    // Keep the dialog button label in sync
+    setEditingMinistry(prev => (prev && prev.id === ministry.id ? { ...prev, is_visible: !prev.is_visible } : prev));
   };
 
   const renderForm = (isNew: boolean = false) => (
@@ -397,109 +398,8 @@ export const MinistryEditor = ({
 
   return (
     <>
-      {/* Ministry Cards Section */}
-      <div className="py-8 sm:py-10 md:py-12 bg-muted/30">
-        <div className="container mx-auto px-3 sm:px-4">
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground font-heading mb-2">
-              Ministerios
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground px-2">
-              Haz clic en cualquier ministerio para editarlo
-            </p>
-          </div>
-          
-          {/* Add button */}
-          <div className="flex flex-col items-center gap-2 mb-4 sm:mb-6">
-            <Button 
-              onClick={openAddDialog} 
-              size="sm" 
-              className="gap-2 text-xs sm:text-sm"
-              disabled={displayMinistries.length >= 20}
-            >
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-              Agregar Ministerio
-            </Button>
-            <p className="text-xs text-muted-foreground">
-              {displayMinistries.length}/20 ministerios
-            </p>
-          </div>
-          
-          {displayMinistries.length === 0 ? (
-            <div className="text-center py-8 sm:py-12 text-muted-foreground">
-              <Users className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-30" />
-              <p className="text-sm sm:text-base">No hay ministerios configurados</p>
-              <p className="text-xs sm:text-sm">Haz clic en "Agregar Ministerio" para crear uno</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
-              {displayMinistries.map((ministry) => {
-                const Icon = iconMap[ministry.icon || 'Users'] || Users;
-                const hasPendingChanges = pendingChanges.has(ministry.id);
-                return (
-                  <Card 
-                    key={ministry.id}
-                    className={`group cursor-pointer hover:shadow-lg transition-all duration-300 overflow-hidden ${
-                      !ministry.is_visible ? 'opacity-50' : ''
-                    } ${hasPendingChanges ? 'ring-2 ring-primary/50' : ''}`}
-                    onClick={() => openEditor(ministry)}
-                  >
-                    {/* Image Preview */}
-                    <div className="relative aspect-square bg-gradient-to-br from-primary/20 to-accent/10 overflow-hidden">
-                      {ministry.image_url ? (
-                        <img 
-                          src={ministry.image_url} 
-                          alt={ministry.title}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Icon className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-primary/50" />
-                        </div>
-                      )}
-                      
-                      {/* Pending changes indicator */}
-                      {hasPendingChanges && (
-                        <div className="absolute top-1 left-1 sm:top-2 sm:left-2 p-1 sm:p-1.5 rounded-full bg-primary text-primary-foreground">
-                          <Check className="h-2 w-2 sm:h-3 sm:w-3" />
-                        </div>
-                      )}
-                      
-                      {/* Visibility indicator */}
-                      {!ministry.is_visible && !hasPendingChanges && (
-                        <div className="absolute top-1 left-1 sm:top-2 sm:left-2 p-1 sm:p-1.5 rounded-full bg-destructive/80 text-destructive-foreground">
-                          <EyeOff className="h-2 w-2 sm:h-3 sm:w-3" />
-                        </div>
-                      )}
-                      
-                      {/* Edit indicator */}
-                      <div className="absolute top-1 right-1 sm:top-2 sm:right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="p-1 sm:p-1.5 rounded-full bg-primary text-primary-foreground">
-                          <Edit3 className="h-2 w-2 sm:h-3 sm:w-3" />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <CardContent className="p-2 sm:p-3">
-                      <h3 className="font-semibold text-[10px] sm:text-xs md:text-sm text-foreground truncate">
-                        {ministry.title}
-                      </h3>
-                      {ministry.description && (
-                        <p className="text-[8px] sm:text-[10px] md:text-xs text-muted-foreground line-clamp-1 mt-0.5 sm:mt-1">
-                          {ministry.description}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Edit Ministry Dialog */}
-      <Dialog open={editingMinistry !== null} onOpenChange={(open) => !open && setEditingMinistry(null)}>
+      <Dialog open={openEditId != null && editingMinistry !== null} onOpenChange={(open) => { if (!open) { setEditingMinistry(null); onEditingClose?.(); } }}>
         <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
@@ -565,7 +465,7 @@ export const MinistryEditor = ({
       </Dialog>
 
       {/* Add Ministry Dialog */}
-      <Dialog open={showAddMinistry} onOpenChange={setShowAddMinistry}>
+      <Dialog open={openAdd} onOpenChange={(open) => { if (!open) onAddClose?.(); }}>
         <DialogContent className="max-w-[95vw] sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
@@ -577,10 +477,10 @@ export const MinistryEditor = ({
           {renderForm(true)}
 
           <DialogFooter className="flex-col sm:flex-row gap-2 pt-3 sm:pt-4 border-t">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowAddMinistry(false)}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => onAddClose?.()}
               className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
             >
               <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />

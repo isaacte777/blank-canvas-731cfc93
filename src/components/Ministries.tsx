@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight } from 'lucide-react';
+import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight, Edit3, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
 
 export interface Ministry {
@@ -27,6 +28,9 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 interface MinistriesProps {
   ministries: Ministry[];
+  isEditable?: boolean;
+  onEditMinistry?: (ministry: Ministry) => void;
+  onAddMinistry?: () => void;
 }
 
 /** Copies of the list rendered in the strip: 3 cycles enable seamless infinite wrap. */
@@ -68,7 +72,7 @@ const applyWrap = (el: HTMLDivElement): number => {
   return 0;
 };
 
-export const Ministries = ({ ministries }: MinistriesProps) => {
+export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onAddMinistry }: MinistriesProps) => {
   const { ref, isVisible } = useScrollAnimation();
 
   // ── Infinite slider: click + drag anywhere, fluid inertia, free stop ──
@@ -188,7 +192,19 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
   }
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
+    <section className="relative py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
+      {/* Overlay for adding ministries (admin preview only) */}
+      {isEditable && onAddMinistry && (
+        <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-20">
+          <Button
+            size="sm"
+            onClick={onAddMinistry}
+            className="bg-turquoise hover:bg-turquoise/80 text-[10px] sm:text-sm h-7 sm:h-9 px-2 sm:px-3"
+          >
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4" /> <span className="hidden xs:inline ml-1">Agregar</span>
+          </Button>
+        </div>
+      )}
       <div className="container mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className={`text-center mb-8 sm:mb-10 md:mb-14 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
@@ -221,16 +237,37 @@ export const Ministries = ({ ministries }: MinistriesProps) => {
                 const isMiddle = copyIdx === 1;
 
                 return (
-                  <Link
-                    key={`${copyIdx}-${ministry.id}`}
-                    to={`/ministerios/${ministry.slug}`}
-                    aria-hidden={!isMiddle}
-                    tabIndex={isMiddle ? undefined : -1}
-                    draggable={false}
-                    onDragStart={(e) => e.preventDefault()}
-                    className="group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 focus:outline-none focus-visible:outline-none"
-                  >
-                    {/* Full-bleed media: the image covers the whole portrait rectangle */}
+                <Link
+                  key={`${copyIdx}-${ministry.id}`}
+                  to={`/ministerios/${ministry.slug}`}
+                  aria-hidden={!isMiddle}
+                  tabIndex={isMiddle ? undefined : -1}
+                  draggable={false}
+                  onDragStart={(e) => e.preventDefault()}
+                  onClick={isEditable && onEditMinistry ? (e) => {
+                    // Admin preview: click opens the editor instead of navigating
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEditMinistry(ministry);
+                  } : undefined}
+                  className={`group relative block flex-none w-[78vw] sm:w-[320px] lg:w-[340px] xl:w-[360px] aspect-[9/16] overflow-hidden rounded-none bg-gradient-to-br from-muted via-background to-muted transition-all duration-500 focus:outline-none focus-visible:outline-none ${isEditable ? 'cursor-pointer' : ''}`}
+                >
+                  {/* Edit affordance (admin preview only) */}
+                  {isEditable && onEditMinistry && (
+                    <button
+                      type="button"
+                      title="Editar ministerio"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onEditMinistry(ministry);
+                      }}
+                      className="absolute top-2 right-2 z-10 p-2 bg-foreground/90 hover:bg-foreground text-background rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                  )}
+                  {/* Full-bleed media: the image covers the whole portrait rectangle */}
                     {ministry.image_url ? (
                       <img
                         src={ministry.image_url}

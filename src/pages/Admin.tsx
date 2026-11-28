@@ -276,6 +276,8 @@ const Admin = () => {
   const [pendingServices, setPendingServices] = useState<Map<string, Partial<Service>>>(new Map());
   const [pendingAnnouncementChanges, setPendingAnnouncementChanges] = useState<Map<string, Partial<Announcement> & { isNew?: boolean; isDeleted?: boolean }>>(new Map());
   const [pendingMinistryChanges, setPendingMinistryChanges] = useState<Map<string, Partial<Ministry> & { isNew?: boolean; isDeleted?: boolean }>>(new Map());
+  const [editingMinistryId, setEditingMinistryId] = useState<string | null>(null);
+  const [showAddMinistry, setShowAddMinistry] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
   // Color palette state - pending colors before save
@@ -2439,13 +2441,21 @@ const Admin = () => {
                             }
                           });
                           return Array.from(merged.values()).filter(m => m.is_visible);
-                        })()} />
+                        })()}
+                          isEditable={true}
+                          onEditMinistry={(m) => setEditingMinistryId(m.id)}
+                          onAddMinistry={() => setShowAddMinistry(true)}
+                        />
                       </div>
 
                       {/* ========== MINISTERIOS EDITOR ========== */}
                       <MinistryEditor 
                         ministries={ministries}
                         pendingChanges={pendingMinistryChanges}
+                        openEditId={editingMinistryId}
+                        openAdd={showAddMinistry}
+                        onEditingClose={() => setEditingMinistryId(null)}
+                        onAddClose={() => setShowAddMinistry(false)}
                         onAddMinistry={(ministry) => {
                           setPendingMinistryChanges(prev => {
                             const newMap = new Map(prev);
