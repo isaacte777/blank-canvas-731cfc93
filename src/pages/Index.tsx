@@ -58,7 +58,7 @@ const Index = () => {
           />
         </div>
         <div id="anuncios" className="scroll-mt-16 md:scroll-mt-20">
-          <Announcements announcements={announcements} />
+          <Announcements announcements={announcements} title={content.announcements?.title} subtitle={content.announcements?.subtitle} />
         </div>
         <div id="cita" className="scroll-mt-16 md:scroll-mt-20">
           <QuoteSection 
@@ -68,7 +68,7 @@ const Index = () => {
           />
         </div>
         <div id="servicios" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
-          <Services services={services} />
+          <Services services={services} title={content.services?.title} subtitle={content.services?.subtitle} />
         </div>
         <div id="nosotros" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
           <About 
@@ -90,10 +90,11 @@ const Index = () => {
             stat2Label={aboutExtraFields.stat2Label}
             stat3Value={aboutExtraFields.stat3Value}
             stat3Label={aboutExtraFields.stat3Label}
+            marqueeText={aboutExtraFields.marqueeText}
           />
         </div>
         <div id="ministerios" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
-          <Ministries ministries={ministries} />
+          <Ministries ministries={ministries} title={content.ministries?.title} subtitle={content.ministries?.subtitle} />
         </div>
         <div id="contacto" className="relative z-40 bg-background scroll-mt-16 md:scroll-mt-20">
           <Contact 

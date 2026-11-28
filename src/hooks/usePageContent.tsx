@@ -116,6 +116,7 @@ interface AboutExtraFields {
   stat2Label: string;
   stat3Value: string;
   stat3Label: string;
+  marqueeText: string;
 }
 
 interface ContactExtraFields {
@@ -258,7 +259,8 @@ export const usePageContent = () => {
               stat2Value: parsed.stat2Value || DEFAULT_ABOUT_FIELDS.stat2Value,
               stat2Label: parsed.stat2Label || DEFAULT_ABOUT_FIELDS.stat2Label,
               stat3Value: parsed.stat3Value || DEFAULT_ABOUT_FIELDS.stat3Value,
-              stat3Label: parsed.stat3Label || DEFAULT_ABOUT_FIELDS.stat3Label
+              stat3Label: parsed.stat3Label || DEFAULT_ABOUT_FIELDS.stat3Label,
+              marqueeText: parsed.marqueeText || DEFAULT_ABOUT_FIELDS.marqueeText
             });
           } catch {
             // Keep defaults

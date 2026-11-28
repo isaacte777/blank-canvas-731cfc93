@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight, Edit3, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { EditableText } from '@/components/admin/EditableText';
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
 
 export interface Ministry {
@@ -31,6 +32,9 @@ interface MinistriesProps {
   isEditable?: boolean;
   onEditMinistry?: (ministry: Ministry) => void;
   onAddMinistry?: () => void;
+  title?: string | null;
+  subtitle?: string | null;
+  onEditHeader?: (field: 'title' | 'subtitle') => void;
 }
 
 /** Copies of the list rendered in the strip: 3 cycles enable seamless infinite wrap. */
@@ -72,7 +76,7 @@ const applyWrap = (el: HTMLDivElement): number => {
   return 0;
 };
 
-export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onAddMinistry }: MinistriesProps) => {
+export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onAddMinistry, title, subtitle, onEditHeader }: MinistriesProps) => {
   const { ref, isVisible } = useScrollAnimation();
 
   // ── Infinite slider: click + drag anywhere, fluid inertia, free stop ──
@@ -90,6 +94,11 @@ export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onA
 
   // Position at the start of the middle cycle after mount / list size change
   const count = ministries?.length ?? 0;
+
+  // Título editable: palabras normales + última palabra en color accent (sin cambiar el look actual)
+  const titleWords = (title || 'Nuestros Ministerios').trim().split(/\s+/);
+  const accentWord = titleWords.length > 1 ? titleWords.pop()! : '';
+  const leadTitle = titleWords.join(' ');
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -209,11 +218,16 @@ export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onA
         {/* Section Header */}
         <div className={`text-center mb-8 sm:mb-10 md:mb-14 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground tracking-wide uppercase font-bold">
-            Nuestros <span className="text-primary">Ministerios</span>
+            <EditableText enabled={isEditable} onClick={() => onEditHeader?.('title')}>
+              {leadTitle}
+              {accentWord && <span className="text-primary"> {accentWord}</span>}
+            </EditableText>
           </h2>
           <div className="w-16 h-1 bg-primary mx-auto mt-3 sm:mt-4 rounded-full" />
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-3 sm:mt-4 max-w-2xl mx-auto">
-            Conoce las diferentes áreas donde servimos y crece junto a nosotros
+            <EditableText enabled={isEditable} onClick={() => onEditHeader?.('subtitle')}>
+              {subtitle || 'Conoce las diferentes áreas donde servimos y crece junto a nosotros'}
+            </EditableText>
           </p>
         </div>
 

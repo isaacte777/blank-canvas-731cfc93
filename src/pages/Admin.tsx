@@ -23,6 +23,8 @@ import {
   DEFAULT_SERVICES,
   DEFAULT_ANNOUNCEMENTS,
   DEFAULT_MINISTRIES,
+  DEFAULT_SECTION_HEADERS,
+  type SectionHeaderKey,
 } from '@/lib/contentDefaults';
 import { 
   Loader2, 
@@ -340,6 +342,9 @@ const Admin = () => {
   // About section editing
   const [editingAboutField, setEditingAboutField] = useState<string | null>(null);
   const [aboutFieldValue, setAboutFieldValue] = useState('');
+  const [editingSectionHeader, setEditingSectionHeader] = useState<{ section: SectionHeaderKey; field: 'title' | 'subtitle' } | null>(null);
+  const [sectionHeaderValue, setSectionHeaderValue] = useState('');
+  const [pendingSectionHeaders, setPendingSectionHeaders] = useState<Partial<Record<SectionHeaderKey, { title?: string; subtitle?: string }>>>({});
   const [aboutExtraFields, setAboutExtraFields] = useState({
     ...DEFAULT_ABOUT_FIELDS
   });
@@ -655,7 +660,8 @@ const Admin = () => {
               stat2Value: parsed.stat2Value || DEFAULT_ABOUT_FIELDS.stat2Value,
               stat2Label: parsed.stat2Label || DEFAULT_ABOUT_FIELDS.stat2Label,
               stat3Value: parsed.stat3Value || DEFAULT_ABOUT_FIELDS.stat3Value,
-              stat3Label: parsed.stat3Label || DEFAULT_ABOUT_FIELDS.stat3Label
+              stat3Label: parsed.stat3Label || DEFAULT_ABOUT_FIELDS.stat3Label,
+              marqueeText: parsed.marqueeText || DEFAULT_ABOUT_FIELDS.marqueeText
             });
             console.log('Loaded about extra fields:', parsed);
           } catch {
@@ -1207,6 +1213,31 @@ const Admin = () => {
       setPageContent(prev => ({ ...prev, contact: contactData }));
     }
 
+    // Guardar encabezados de secciones (ministries / services / announcements)
+    for (const headerSection of ['ministries', 'services', 'announcements'] as const) {
+      const { error: headerError, data: headerData } = await supabase
+        .from('page_content')
+        .upsert({
+          section: headerSection,
+          title: getSectionHeaderValue(headerSection, 'title'),
+          subtitle: getSectionHeaderValue(headerSection, 'subtitle'),
+          content: null,
+          is_visible: true
+        }, { onConflict: 'section' })
+        .select()
+        .single();
+
+      console.log(`Header ${headerSection} save result:`, { error: headerError, data: headerData });
+
+      if (headerError) {
+        console.error(`Error saving ${headerSection} header:`, headerError);
+        hasError = true;
+        errorSections.push(`Encabezado ${headerSection}`);
+      } else if (headerData) {
+        setPageContent(prev => ({ ...prev, [headerSection]: headerData }));
+      }
+    }
+
     // Save footer section (social media URLs) using upsert
     const footerContentString = JSON.stringify(footerFields);
     console.log('Saving footer content:', footerContentString);
@@ -1578,6 +1609,35 @@ const Admin = () => {
   };
 
   // About field editing helpers
+  const SECTION_HEADER_LABELS: Record<SectionHeaderKey, string> = {
+    ministries: 'Ministerios',
+    services: 'Servicios',
+    announcements: 'Anuncios',
+  };
+
+  // Encabezados de secciones: pending > pageContent > default
+  const getSectionHeaderValue = (section: SectionHeaderKey, field: 'title' | 'subtitle'): string =>
+    pendingSectionHeaders[section]?.[field] ||
+    pageContent[section]?.[field] ||
+    DEFAULT_SECTION_HEADERS[section][field];
+
+  const openSectionHeaderEditor = (section: SectionHeaderKey, field: 'title' | 'subtitle') => {
+    setSectionHeaderValue(getSectionHeaderValue(section, field));
+    setEditingSectionHeader({ section, field });
+  };
+
+  const saveSectionHeader = () => {
+    if (!editingSectionHeader) return;
+    const { section, field } = editingSectionHeader;
+    setPendingSectionHeaders(prev => ({
+      ...prev,
+      [section]: { ...prev[section], [field]: sectionHeaderValue },
+    }));
+    setHasUnsavedChanges(true);
+    setEditingSectionHeader(null);
+    toast({ title: "Cambio aplicado", description: "Presiona 'Guardar Edits' para guardar definitivamente" });
+  };
+
   const getAboutFieldValue = (field: string): string => {
     if (field === 'title') return pendingPageContent.about?.title || pageContent.about?.title || DEFAULT_ABOUT.title;
     if (field === 'subtitle') return pendingPageContent.about?.subtitle || pageContent.about?.subtitle || DEFAULT_ABOUT.subtitle;
@@ -1602,7 +1662,8 @@ const Admin = () => {
       stat2Value: 'Estadística 2 - Valor',
       stat2Label: 'Estadística 2 - Etiqueta',
       stat3Value: 'Estadística 3 - Valor',
-      stat3Label: 'Estadística 3 - Etiqueta'
+      stat3Label: 'Estadística 3 - Etiqueta',
+      marqueeText: 'Texto del Marquee (separado por comas)'
     };
     return labels[field] || field;
   };
@@ -2336,6 +2397,9 @@ const Admin = () => {
                             setAnnouncementForm({ title: '', description: '', image_url: '' });
                             setShowAddAnnouncement(true);
                           }}
+                          title={getSectionHeaderValue('announcements', 'title')}
+                          subtitle={getSectionHeaderValue('announcements', 'subtitle')}
+                          onEditHeader={(field) => openSectionHeaderEditor('announcements', field)}
                         />
                       </div>
 
@@ -2356,6 +2420,9 @@ const Admin = () => {
                           services={services.filter(s => s.is_visible)} 
                           onEditService={openServiceEditor}
                           isEditable={true}
+                          title={getSectionHeaderValue('services', 'title')}
+                          subtitle={getSectionHeaderValue('services', 'subtitle')}
+                          onEditHeader={(field) => openSectionHeaderEditor('services', field)}
                         />
                         {/* Overlay for adding services */}
                         <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-10">
@@ -2407,6 +2474,7 @@ const Admin = () => {
                         stat2Label={aboutExtraFields.stat2Label}
                         stat3Value={aboutExtraFields.stat3Value}
                         stat3Label={aboutExtraFields.stat3Label}
+                        marqueeText={aboutExtraFields.marqueeText}
                       />
                       </div>
 
@@ -2445,6 +2513,9 @@ const Admin = () => {
                           isEditable={true}
                           onEditMinistry={(m) => setEditingMinistryId(m.id)}
                           onAddMinistry={() => setShowAddMinistry(true)}
+                          title={getSectionHeaderValue('ministries', 'title')}
+                          subtitle={getSectionHeaderValue('ministries', 'subtitle')}
+                          onEditHeader={(field) => openSectionHeaderEditor('ministries', field)}
                         />
                       </div>
 
@@ -4029,6 +4100,37 @@ const Admin = () => {
                 <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" /> Cancelar
               </Button>
               <Button size="sm" onClick={saveAboutField}>
+                <Save className="w-3 h-3 sm:w-4 sm:h-4 mr-1" /> Aplicar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Section Header Edit Modal (Ministries / Services / Announcements) */}
+      <Dialog open={editingSectionHeader !== null} onOpenChange={(open) => !open && setEditingSectionHeader(null)}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto mx-2 sm:mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-purple" />
+              Editar encabezado — {editingSectionHeader ? SECTION_HEADER_LABELS[editingSectionHeader.section] : ''}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label className="text-xs sm:text-sm">{editingSectionHeader?.field === 'subtitle' ? 'Subtítulo' : 'Título'} de la sección</Label>
+              <Input
+                value={sectionHeaderValue}
+                onChange={(e) => setSectionHeaderValue(e.target.value)}
+                className="h-9 text-sm"
+                placeholder="Escribe aquí..."
+              />
+            </div>
+            <div className="flex gap-2 justify-end pt-3 sm:pt-4 border-t border-border">
+              <Button variant="outline" size="sm" onClick={() => setEditingSectionHeader(null)}>
+                <X className="w-3 h-3 sm:w-4 sm:h-4 mr-1" /> Cancelar
+              </Button>
+              <Button size="sm" onClick={saveSectionHeader}>
                 <Save className="w-3 h-3 sm:w-4 sm:h-4 mr-1" /> Aplicar
               </Button>
             </div>

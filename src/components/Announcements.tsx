@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Edit3, Plus } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { Button } from "@/components/ui/button";
+import { EditableText } from "@/components/admin/EditableText";
 
 export interface Announcement {
   id: string;
@@ -17,13 +18,19 @@ interface AnnouncementsProps {
   isEditable?: boolean;
   onEditAnnouncement?: (announcement: Announcement) => void;
   onAddAnnouncement?: () => void;
+  title?: string | null;
+  subtitle?: string | null;
+  onEditHeader?: (field: 'title' | 'subtitle') => void;
 }
 
 export const Announcements = ({ 
   announcements: propAnnouncements, 
   isEditable = false, 
   onEditAnnouncement,
-  onAddAnnouncement
+  onAddAnnouncement,
+  title,
+  subtitle,
+  onEditHeader
 }: AnnouncementsProps) => {
   const { ref, isVisible } = useScrollAnimation();
   const bgRef = useRef<HTMLDivElement>(null);
@@ -135,11 +142,15 @@ export const Announcements = ({
             className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-wider uppercase"
             style={{ fontFamily: 'var(--font-hero)' }}
           >
-            ANUNCIOS
+            <EditableText enabled={isEditable} onClick={() => onEditHeader?.('title')}>
+              {title || 'ANUNCIOS'}
+            </EditableText>
           </h2>
           <div className="w-16 h-1 bg-primary mx-auto mt-3 sm:mt-4 rounded-full" />
           <p className="text-sm sm:text-base md:text-lg text-white/70 mt-3 sm:mt-4 max-w-2xl mx-auto">
-            Entérate de las actividades y novedades de nuestra comunidad
+            <EditableText enabled={isEditable} onClick={() => onEditHeader?.('subtitle')}>
+              {subtitle || 'Entérate de las actividades y novedades de nuestra comunidad'}
+            </EditableText>
           </p>
         </div>
 
