@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
 import { Button } from "@/components/ui/button";
+import { EditableText } from "@/components/admin/EditableText";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export interface Service {
@@ -54,6 +55,9 @@ interface ServicesProps {
   services?: Service[];
   onEditService?: (service: Service) => void;
   isEditable?: boolean;
+  title?: string | null;
+  subtitle?: string | null;
+  onEditHeader?: (field: 'title' | 'subtitle') => void;
 }
 
 // Extended icon map with 30 church/ministry related icons
@@ -90,8 +94,13 @@ const iconMap: Record<string, LucideIcon> = {
   Umbrella
 };
 
-export const Services = ({ services: propServices, onEditService, isEditable = false }: ServicesProps) => {
+export const Services = ({ services: propServices, onEditService, isEditable = false, title, subtitle, onEditHeader }: ServicesProps) => {
   const { ref, isVisible } = useScrollAnimation();
+
+  // Título editable: palabras normales + última palabra en color accent (sin cambiar el look actual)
+  const titleWords = (title || 'Nuestros Servicios').trim().split(/\s+/);
+  const accentWord = titleWords.length > 1 ? titleWords.pop()! : '';
+  const leadTitle = titleWords.join(' ');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   
   const defaultServices: Service[] = [
@@ -157,12 +166,16 @@ export const Services = ({ services: propServices, onEditService, isEditable = f
           {/* Header consistente con About section */}
           <div className="text-center mb-8 sm:mb-10 md:mb-14">
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-foreground tracking-wide uppercase font-bold">
-              Nuestros{' '}
-              <span className="text-primary">Servicios</span>
+              <EditableText enabled={isEditable} onClick={() => onEditHeader?.('title')}>
+                {leadTitle}
+                {accentWord && <span className="text-primary"> {accentWord}</span>}
+              </EditableText>
             </h2>
             <div className="w-16 h-1 bg-primary mx-auto mt-3 sm:mt-4 rounded-full" />
             <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-3 sm:mt-4 max-w-2xl mx-auto">
-              Te invitamos a ser parte de nuestra comunidad de fe
+              <EditableText enabled={isEditable} onClick={() => onEditHeader?.('subtitle')}>
+                {subtitle || 'Te invitamos a ser parte de nuestra comunidad de fe'}
+              </EditableText>
             </p>
           </div>
 

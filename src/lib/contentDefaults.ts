@@ -29,7 +29,28 @@ export const DEFAULT_ABOUT_FIELDS = {
   stat2Label: 'MIEMBROS',
   stat3Value: '15',
   stat3Label: 'MINISTERIOS',
+  marqueeText: 'CREE., PERTENECE., TRANSFORMA., BIENVENIDOS A CFA',
 };
+
+// Encabezados editables de las secciones de la página principal.
+// Se guardan como filas de page_content ('ministries' / 'services' / 'announcements')
+// y se leen desde usePageContent en el sitio público.
+export const DEFAULT_SECTION_HEADERS = {
+  ministries: {
+    title: 'Nuestros Ministerios',
+    subtitle: 'Conoce las diferentes áreas donde servimos y crece junto a nosotros',
+  },
+  services: {
+    title: 'Nuestros Servicios',
+    subtitle: 'Te invitamos a ser parte de nuestra comunidad de fe',
+  },
+  announcements: {
+    title: 'ANUNCIOS',
+    subtitle: 'Entérate de las actividades y novedades de nuestra comunidad',
+  },
+} as const;
+
+export type SectionHeaderKey = keyof typeof DEFAULT_SECTION_HEADERS;
 
 export const DEFAULT_CONTACT = {
   title: 'Contáctanos',

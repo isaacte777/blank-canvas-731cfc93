@@ -18,9 +18,10 @@ interface AboutProps {
   image_url?: string | null;
   galleryImages?: GalleryImage[];
   isEditable?: boolean;
-  onEditField?: (field: 'title' | 'subtitle' | 'content' | 'secondParagraph' | 'value1Title' | 'value1Desc' | 'value2Title' | 'value2Desc' | 'value3Title' | 'value3Desc' | 'stat1Value' | 'stat1Label' | 'stat2Value' | 'stat2Label' | 'stat3Value' | 'stat3Label') => void;
+  onEditField?: (field: 'title' | 'subtitle' | 'content' | 'secondParagraph' | 'value1Title' | 'value1Desc' | 'value2Title' | 'value2Desc' | 'value3Title' | 'value3Desc' | 'stat1Value' | 'stat1Label' | 'stat2Value' | 'stat2Label' | 'stat3Value' | 'stat3Label' | 'marqueeText') => void;
   onEditImage?: () => void;
   onEditGalleryImage?: (image: GalleryImage) => void;
+  marqueeText?: string | null;
   secondParagraph?: string | null;
   value1Title?: string | null;
   value1Desc?: string | null;
@@ -46,6 +47,7 @@ export const About = ({
   onEditField,
   onEditImage,
   onEditGalleryImage,
+  marqueeText,
   secondParagraph,
   value1Title,
   value1Desc,
@@ -77,6 +79,13 @@ export const About = ({
 
   // Fallbacks: si la base no tiene valores, mostramos la información histórica
   const displayTitle = title || DEFAULT_ABOUT.title;
+
+  // Texto de la banda marquee: "CREE., PERTENECE., TRANSFORMA., BIENVENIDOS A CFA"
+  // separado por comas. Cada palabra queda envuelta en EditableText en el preview.
+  const marqueeWords = (marqueeText || DEFAULT_ABOUT_FIELDS.marqueeText)
+    .split(',')
+    .map(w => w.trim())
+    .filter(Boolean);
   const displaySubtitle = subtitle || DEFAULT_ABOUT.subtitle;
   const displayContent = content || DEFAULT_ABOUT_FIELDS.firstParagraph;
   const displaySecond = secondParagraph || DEFAULT_ABOUT_FIELDS.secondParagraph;
@@ -310,10 +319,10 @@ export const About = ({
         <div className="flex w-max animate-marquee">
           {[0, 1].map((group) => (
             <div key={group} className="flex shrink-0 items-center">
-              {['CREE.', 'PERTENECE.', 'TRANSFORMA.', 'BIENVENIDOS A CFA'].map((text) => (
-                <span key={text} className="flex items-center whitespace-nowrap">
+              {marqueeWords.map((text, i) => (
+                <span key={`${group}-${i}`} className="flex items-center whitespace-nowrap">
                   <span className="px-5 sm:px-7 text-sm sm:text-base md:text-lg font-heading font-semibold uppercase tracking-[0.3em] text-foreground/70">
-                    {text}
+                    <EditableText field="marqueeText">{text}</EditableText>
                   </span>
                   <span className="text-foreground/30 text-xs sm:text-sm">✦</span>
                 </span>
