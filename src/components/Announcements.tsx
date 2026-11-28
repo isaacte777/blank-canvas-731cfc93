@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Edit3, Plus } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
+import { DEFAULT_ANNOUNCEMENTS } from "@/lib/contentDefaults";
 import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
 
@@ -65,45 +66,11 @@ export const Announcements = ({
     };
   }, [ref]);
 
-  // Default announcements if no data
-  const defaultAnnouncements: Announcement[] = [
-    {
-      id: '1',
-      title: "Compartí Tu Dolor",
-      description: "Grupo de apoyo en tiempo de duelo. Reuniones semanales todos los miércoles.",
-      image_url: "https://images.unsplash.com/photo-1507692049790-de58290a4334?w=600&h=600&fit=crop",
-      is_visible: true,
-      display_order: 0
-    },
-    {
-      id: '2',
-      title: "Oración Congregacional",
-      description: "Lunes a Viernes 05:30 hs (Presencial/Zoom). Lunes a Jueves 19:30 hs.",
-      image_url: "https://images.unsplash.com/photo-1519834785169-98be25ec3f84?w=600&h=600&fit=crop",
-      is_visible: true,
-      display_order: 1
-    },
-    {
-      id: '3',
-      title: "Vigilia de Oración",
-      description: "Viernes 21:00 hs en la Sala de Oración congregacional.",
-      image_url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&h=600&fit=crop",
-      is_visible: true,
-      display_order: 2
-    },
-    {
-      id: '4',
-      title: "Sé parte de una Célula",
-      description: "Escanea el código y escríbenos. Más información al WhatsApp.",
-      image_url: "https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=600&h=600&fit=crop",
-      is_visible: true,
-      display_order: 3
-    }
-  ];
-
-  const announcements = propAnnouncements && propAnnouncements.length > 0 
-    ? propAnnouncements 
-    : defaultAnnouncements;
+  // Fallback único (contentDefaults): el preview del admin y el sitio público
+  // deben renderizar exactamente lo mismo cuando no hay filas visibles.
+  const announcements = propAnnouncements && propAnnouncements.length > 0
+    ? propAnnouncements
+    : DEFAULT_ANNOUNCEMENTS;
 
   // Grid columns adapt to the number of announcements so they always look centered
   const gridClass = announcements.length === 1

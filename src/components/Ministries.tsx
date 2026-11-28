@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Users, Music, Heart, BookOpen, Church, Baby, GraduationCap, Flame, ArrowRight, Edit3, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EditableText } from '@/components/admin/EditableText';
+import { DEFAULT_MINISTRIES } from '@/lib/contentDefaults';
 import { useScrollAnimation } from '@/hooks/use-scroll-animation';
 
 export interface Ministry {
@@ -93,7 +94,10 @@ export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onA
   };
 
   // Position at the start of the middle cycle after mount / list size change
-  const count = ministries?.length ?? 0;
+  // Fallback único (contentDefaults): el preview del admin y el sitio público
+  // deben renderizar exactamente lo mismo cuando no hay filas visibles.
+  const ministryList = ministries?.length ? ministries : DEFAULT_MINISTRIES;
+  const count = ministryList.length;
 
   // Título editable: palabras normales + última palabra en color accent (sin cambiar el look actual)
   const titleWords = (title || 'Nuestros Ministerios').trim().split(/\s+/);
@@ -195,11 +199,6 @@ export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onA
     }
   };
 
-  // Don't render if no ministries
-  if (!ministries || ministries.length === 0) {
-    return null;
-  }
-
   return (
     <section className="relative py-12 sm:py-16 md:py-20 bg-background" ref={ref}>
       {/* Overlay for adding ministries (admin preview only) */}
@@ -246,7 +245,7 @@ export const Ministries = ({ ministries, isEditable = false, onEditMinistry, onA
             className="flex gap-4 sm:gap-5 md:gap-6 overflow-x-auto no-scrollbar pt-1 pb-1 select-none cursor-grab active:cursor-grabbing"
           >
             {Array.from({ length: COPIES }, (_, copyIdx) =>
-              ministries.map((ministry) => {
+              ministryList.map((ministry) => {
                 const Icon = iconMap[ministry.icon || 'Users'] || Users;
                 const isMiddle = copyIdx === 1;
 

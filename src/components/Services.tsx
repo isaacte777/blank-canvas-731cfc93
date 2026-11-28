@@ -35,6 +35,7 @@ import {
   type LucideIcon
 } from "lucide-react";
 import { useScrollAnimation } from "@/hooks/use-scroll-animation";
+import { DEFAULT_SERVICES } from "@/lib/contentDefaults";
 import { Button } from "@/components/ui/button";
 import { EditableText } from "@/components/admin/EditableText";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -103,54 +104,9 @@ export const Services = ({ services: propServices, onEditService, isEditable = f
   const leadTitle = titleWords.join(' ');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   
-  const defaultServices: Service[] = [
-    {
-      id: '1',
-      icon: 'Church',
-      day: "Domingo",
-      time: "10:00 AM",
-      title: "Servicio Dominical",
-      description: "Alabanza, adoración y mensaje de la Palabra de Dios para toda la familia",
-      extended_content: "Un tiempo especial de comunión donde nos reunimos como familia de fe. Contamos con alabanza en vivo, oración colectiva y un mensaje inspirador para aplicar en tu vida diaria. Servicio de guardería disponible.",
-      is_visible: true,
-      display_order: 1
-    },
-    {
-      id: '2',
-      icon: 'BookOpen',
-      day: "Miércoles",
-      time: "7:00 PM",
-      title: "Estudio Bíblico",
-      description: "Profundizando en la Palabra de Dios y creciendo en fe",
-      extended_content: "Estudio versículo por versículo de la Biblia. Un espacio para preguntas, discusión y crecimiento espiritual en comunidad. Todos los niveles de conocimiento bíblico son bienvenidos.",
-      is_visible: true,
-      display_order: 2
-    },
-    {
-      id: '3',
-      icon: 'Users',
-      day: "Viernes",
-      time: "7:30 PM",
-      title: "Reunión de Jóvenes",
-      description: "Comunidad, música y enseñanza para la juventud",
-      extended_content: "Un ambiente dinámico y relevante para la juventud. Incluye juegos, adoración contemporánea, enseñanza práctica y oportunidades de servicio. Para jóvenes de 13 a 25 años.",
-      is_visible: true,
-      display_order: 3
-    },
-    {
-      id: '4',
-      icon: 'Heart',
-      day: "Sábado",
-      time: "5:00 PM",
-      title: "Grupos de Vida",
-      description: "Células familiares para crecer juntos en comunidad",
-      extended_content: "Reuniones en hogares donde compartimos, oramos y estudiamos la Palabra en un ambiente íntimo y familiar. Un lugar para hacer amigos y crecer espiritualmente.",
-      is_visible: true,
-      display_order: 4
-    }
-  ];
-
-  const services = propServices && propServices.length > 0 ? propServices : defaultServices;
+  // Fallback único (contentDefaults): el preview del admin y el sitio público
+  // deben renderizar exactamente lo mismo cuando no hay filas visibles.
+  const services = propServices && propServices.length > 0 ? propServices : DEFAULT_SERVICES;
 
   const handleMoreInfo = (e: React.MouseEvent, service: Service) => {
     e.stopPropagation();
