@@ -1297,8 +1297,8 @@ const Admin = () => {
           errorSections.push('Servicios');
         }
       } else if (isValidUUID(serviceId)) {
-        // Update existing service
-        const { error } = await supabase
+        // Update existing service (si la fila no existe en la BD, materializarla)
+        const { data: updated, error } = await supabase
           .from('services')
           .update({
             title: serviceData.title,
@@ -1308,12 +1308,30 @@ const Admin = () => {
             time: serviceData.time,
             icon: serviceData.icon
           })
-          .eq('id', serviceId);
+          .eq('id', serviceId)
+          .select('id');
         
         if (error) {
           console.error('Error updating service:', error);
           hasError = true;
           errorSections.push('Servicios');
+        } else if (!updated?.length) {
+          const { error: insertError } = await supabase.from('services').insert({
+            id: serviceId,
+            title: serviceData.title,
+            description: serviceData.description || null,
+            extended_content: serviceData.extended_content || null,
+            day: serviceData.day || null,
+            time: serviceData.time || null,
+            icon: serviceData.icon || 'Church',
+            is_visible: serviceData.is_visible ?? true,
+            display_order: serviceData.display_order || 0
+          });
+          if (insertError) {
+            console.error('Error materializing service:', insertError);
+            hasError = true;
+            errorSections.push('Servicios');
+          }
         }
       }
     }
@@ -1348,20 +1366,35 @@ const Admin = () => {
           errorSections.push('Anuncios');
         }
       } else if (isValidUUID(announcementId)) {
-        // Update existing announcement
-        const { error } = await supabase
+        // Update existing announcement (si la fila no existe en la BD, materializarla)
+        const { data: updated, error } = await supabase
           .from('announcements')
           .update({
             title: announcementData.title,
             description: announcementData.description,
             image_url: announcementData.image_url || null
           })
-          .eq('id', announcementId);
+          .eq('id', announcementId)
+          .select('id');
         
         if (error) {
           console.error('Error updating announcement:', error);
           hasError = true;
           errorSections.push('Anuncios');
+        } else if (!updated?.length) {
+          const { error: insertError } = await supabase.from('announcements').insert({
+            id: announcementId,
+            title: announcementData.title,
+            description: announcementData.description || null,
+            image_url: announcementData.image_url || null,
+            is_visible: announcementData.is_visible ?? true,
+            display_order: announcementData.display_order || 0
+          });
+          if (insertError) {
+            console.error('Error materializing announcement:', insertError);
+            hasError = true;
+            errorSections.push('Anuncios');
+          }
         }
       }
     }
@@ -1474,15 +1507,36 @@ const Admin = () => {
         if (ministryData.icon !== undefined) updateData.icon = ministryData.icon;
         if (ministryData.is_visible !== undefined) updateData.is_visible = ministryData.is_visible;
         
-        const { error } = await supabase
+        const { data: updated, error } = await supabase
           .from('ministries')
           .update(updateData)
-          .eq('id', ministryId);
+          .eq('id', ministryId)
+          .select('id');
         
         if (error) {
           console.error('Error updating ministry:', error);
           hasError = true;
           errorSections.push('Ministerios');
+        } else if (!updated?.length) {
+          // La fila no existe en la BD (contenido de ejemplo) → materializarla
+          const { error: insertError } = await supabase.from('ministries').insert({
+            id: ministryId,
+            title: ministryData.title || '',
+            slug: ministryData.slug || '',
+            description: ministryData.description || null,
+            content: ministryData.content || null,
+            schedule: ministryData.schedule || null,
+            leader: ministryData.leader || null,
+            image_url: ministryData.image_url || null,
+            icon: ministryData.icon || 'Users',
+            is_visible: ministryData.is_visible ?? true,
+            display_order: ministryData.display_order || 0
+          });
+          if (insertError) {
+            console.error('Error materializing ministry:', insertError);
+            hasError = true;
+            errorSections.push('Ministerios');
+          }
         }
       }
     }
@@ -2511,7 +2565,17 @@ const Admin = () => {
                           return Array.from(merged.values()).filter(m => m.is_visible);
                         })()}
                           isEditable={true}
-                          onEditMinistry={(m) => setEditingMinistryId(m.id)}
+                          onEditMinistry={(m) => {
+                            // Si la tarjeta viene del fallback (BD sin datos), materializar
+                            // los defaults en el estado para que el editor la encuentre.
+                            setMinistries(prev => {
+                              if (prev.some(x => x.id === m.id)) return prev;
+                              const additions = DEFAULT_MINISTRIES.filter(d => !prev.some(x => x.id === d.id)) as Ministry[];
+                              const list = [...prev, ...additions];
+                              return (list.some(x => x.id === m.id) ? list : [...list, m]) as Ministry[];
+                            });
+                            setEditingMinistryId(m.id);
+                          }}
                           onAddMinistry={() => setShowAddMinistry(true)}
                           title={getSectionHeaderValue('ministries', 'title')}
                           subtitle={getSectionHeaderValue('ministries', 'subtitle')}
